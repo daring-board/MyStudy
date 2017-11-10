@@ -9,4 +9,4 @@
 
 Runnable Command Line on MyStudy dirctory.
 python -m example
-python -m pipline
+python -m pipline -k aaa.txt
