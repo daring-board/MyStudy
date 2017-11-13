@@ -106,10 +106,16 @@ if __name__=='__main__':
 
 #    model = linear_model.LinearRegression()
     print('Regressor')
-#    model = RandomForestRegressor(n_estimators=500, max_depth=4, min_samples_split=2)
+#    model = RandomForestRegressor(n_estimators=1000, max_depth=4, min_samples_split=2)
 #    model = SVR(C=1e3, cache_size=200, gamma=0.2, epsilon=0.1, kernel='rfb')
 #    model = tree.DecisionTreeRegressor(max_depth=4)
-    model = MLPRegressor(hidden_layer_sizes=(100,100,100,100,), random_state=42)
+#    layers = (5, 15, 8,)
+#    layers = (5, 20, 5,)
+#    layers = (10,)
+#    layers = (30, 4)
+#    layers = (50, 4) # 50～55、6～7 logistic
+    layers = (100, 20, 5)
+    model = MLPRegressor(hidden_layer_sizes=layers, activation='tanh', random_state=30)
     model.fit(X_train, y_train)
 
 #    print('Intercept: %f'%model.intercept_)
