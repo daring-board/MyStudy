@@ -15,6 +15,7 @@ python -m pipline -k aaa.txt
 |日付|時間|実施Section個数|
 |:---:|:---:|:---:|
 |2017/11/11|3H|9|
+|2017/11/13|1H|2|
 
 ### Trainging Topix
 > Metrics
