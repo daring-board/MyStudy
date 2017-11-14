@@ -24,11 +24,7 @@ if __name__=='__main__':
     num_training = int(0.9*len(X))
     X_train, y_train = X[:num_training], y[:num_training]
     X_test, y_test = X[num_training:], y[num_training:]
-<<<<<<< HEAD
     rf_regressor = RandomForestRegressor(n_estimators=1000, max_depth=10, min_samples_split=2)
-=======
-    rf_regressor = RandomForestRegressor(n_estimators=1000, max_depth=10, min_samples_split=1)
->>>>>>> b4a472b18862d55ce4591dba64f9b00f331c6649
     rf_regressor.fit(X_train, y_train)
 
     y_pred_rf = rf_regressor.predict(X_test)
