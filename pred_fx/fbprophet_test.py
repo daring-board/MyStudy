@@ -37,7 +37,7 @@ if __name__=='__main__':
             end = start + pred_num
             train_data = s_val[start-rows: start]
             #pred_data = s_val[start:end]
-            model = Prophet(growth='logistic', yearly_seasonality=False, weekly_seasonality=False, daily_seasonality=True)
+            model = Prophet(yearly_seasonality=True, weekly_seasonality=False, daily_seasonality=True)
             model.fit(train_data)
 
             future = model.make_future_dataframe(periods=20)
