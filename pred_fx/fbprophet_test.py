@@ -21,33 +21,35 @@ def readDatas(path):
     return s_val
 
 if __name__=='__main__':
-    stock = '1605'
-    path = './data/Close/%s.csv'%stock
-    dir_path = './result/%s'%stock
-    if not os.path.exists(dir_path): os.makedirs(dir_path)
-    s_val = readDatas(path)
-    length = int(len(s_val)*0.9)
-    rows = 240
-    spans = 240
-    pred_num = int(rows/spans)
-    extra_num = 1040
-    for span in range(spans):
-        start = extra_num+pred_num*span
-        end = start + pred_num
-        train_data = s_val[:start]
-        #pred_data = s_val[start:end]
-        model = Prophet(growth='logistic', yearly_seasonality=False, weekly_seasonality=False, daily_seasonality=True)
-        model.fit(train_data)
+    stocks = ['1605', '2502', '3382', '6501', '8267']
+    for stock in stocks:
+        path = './data/Close/%s.csv'%stock
+        dir_path = './result/%s'%stock
+        if not os.path.exists(dir_path): os.makedirs(dir_path)
+        s_val = readDatas(path)
+        length = int(len(s_val)*0.9)
+        rows = 240
+        spans = 12
+        pred_num = int(rows/spans)
+        extra_num = 1040
+        for span in range(spans):
+            start = extra_num+pred_num*span
+            end = start + pred_num
+            train_data = s_val[start-rows: start]
+            #pred_data = s_val[start:end]
+            model = Prophet(growth='logistic', yearly_seasonality=False, weekly_seasonality=False, daily_seasonality=True)
+            model.fit(train_data)
 
-        future = model.make_future_dataframe(periods=20)
-        future['cap'] = [train_data['cap'][1] for idx in range(len(future))]
-        forecast = model.predict(future)
-        model.plot(forecast)
-        filename = '%s/output%d.png'%(dir_path, span)
-        plt.savefig(filename)
-        with open('%s/result.csv'%dir_path, 'a') as f:
-            if span == 0: f.write('date, actual, predict, error, confidence_interval\n')
-            for idx in range(pred_num):
-                line = '%s, %f, %f'%(s_val['ds'][start+idx], s_val['y'][start+idx],forecast['yhat'][start+idx])
-                line += ', %f, (%f_%f)\n'%( abs(s_val['y'][start+idx]-forecast['yhat'][start+idx]), forecast['yhat_lower'][start+idx], forecast['yhat_upper'][start+idx])
-                f.write(line)
+            future = model.make_future_dataframe(periods=20)
+            future['cap'] = [train_data['cap'][start-1] for idx in range(len(future))]
+            forecast = model.predict(future)
+            model.plot(forecast)
+            filename = '%s/output%d.png'%(dir_path, span)
+            plt.savefig(filename)
+            with open('%s/result.csv'%dir_path, 'a') as f:
+                if span == 0: f.write('date, actual, predict, error, confidence_interval\n')
+                for idx in range(pred_num):
+                    row_idx = start-rows+idx
+                    line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx],forecast['yhat'][rows+idx])
+                    line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][rows+idx]), forecast['yhat_lower'][rows+idx], forecast['yhat_upper'][rows+idx])
+                    f.write(line)
