@@ -1,29 +1,32 @@
+par = 100
+
 if __name__=='__main__':
     stocks = ['1605', '2502', '3382', '6501', '8267']
     for stock in stocks:
         print(stock)
         dir_path = './result/%s'%stock
+        #rate = 0.02
+        rate = 0.02
         with open('%s/result.csv'%dir_path, 'r') as f:
             lines = [line.strip() for line in f][1:]
         actual_list = [float(line.split(',')[1]) for line in lines]
         pred_list = [float(line.split(',')[2]) for line in lines]
         day_length_list = [1, 2, 3, 4, 5, 6, 11, 16, 21, 41, 61]
-        rate = 0.02
-        line = '正解, 日数, 高騰正答数, 下落正答数, 高騰正答率(％), 下落正答率(％)\n'
+        line = '正解, 日数, 高騰正解数, 下落正解数, 高騰正答数, 下落正答数, 高騰正答率(％), 下落正答率(％)\n'
         for l in day_length_list:
-            corrects = [1 if (actual_list[idx]-actual_list[idx-l])/actual_list[idx] > rate else 0 for idx in range(len(actual_list))]
-            prediction = [1 if (pred_list[idx]-pred_list[idx-l])/pred_list[idx] > rate else 0 for idx in range(len(pred_list))]
-            count_raise = 0
-            for idx in range(len(actual_list)):
-                ret = 1 if corrects[idx]==prediction[idx] else 0
-                #print('%d, %d, %d'%(corrects[idx], prediction[idx], ret))
-                if ret == 1: count_raise += 1
-            corrects = [1 if (actual_list[idx]-actual_list[idx-l])/actual_list[idx] < -rate else 0 for idx in range(len(actual_list))]
-            prediction = [1 if (pred_list[idx]-pred_list[idx-l])/pred_list[idx] < -rate else 0 for idx in range(len(pred_list))]
-            count_fall = 0
-            for idx in range(len(actual_list)):
-                ret = 1 if corrects[idx]==prediction[idx] else 0
-                #print('%d, %d, %d'%(corrects[idx], prediction[idx], ret))
-                if ret == 1: count_fall += 1
-            line += '%dd_2％, %d, %d, %d, %.2f, %.2f\n'%(l, len(actual_list), count_raise, count_fall, 100*count_raise/len(actual_list), 100*count_fall/len(actual_list))
-        with open('%s/probs.csv'%dir_path, 'w') as f: f.write(line)
+            values = [(actual_list[idx]-actual_list[idx-l])/actual_list[idx] for idx in range(len(actual_list))]
+            r_corrects = [1 if val > rate else 0 for val in values]
+            values = [(pred_list[idx]-pred_list[idx-l])/pred_list[idx] for idx in range(len(pred_list))]
+            prediction = [1 if val > rate*0.2 else 0 for val in values]
+            raise_correct = sum(item for item in r_corrects)
+            count_raise = sum(1 if r_corrects[idx]==prediction[idx] and r_corrects[idx]==1 else 0 for idx in range(len(actual_list)))
+            values = [(actual_list[idx]-actual_list[idx-l])/actual_list[idx] for idx in range(len(actual_list))]
+            f_corrects = [1 if val > -rate else 0 for val in values]
+            values = [(pred_list[idx]-pred_list[idx-l])/pred_list[idx] for idx in range(len(pred_list))]
+            prediction = [1 if val > -rate*0.2 else 0 for val in values]
+            fall_correct = sum(item for item in f_corrects)
+            count_fall = sum(1 if f_corrects[idx]==prediction[idx] and f_corrects[idx]==1 else 0 for idx in range(len(actual_list)))
+            line += '%dd_%d％,'%(l, rate*par)
+            line += ' %d, %d, %d, %d, %d,'%(len(actual_list), raise_correct, count_raise, fall_correct, count_fall)
+            line += '%.2f, %.2f\n'%(par*count_raise/raise_correct, par*count_fall/fall_correct)
+        with open('%s/probs_%d.csv'%(dir_path, int(par*rate)), 'w') as f: f.write(line)

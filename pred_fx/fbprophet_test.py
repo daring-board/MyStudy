@@ -27,16 +27,15 @@ if __name__=='__main__':
         dir_path = './result/%s'%stock
         if not os.path.exists(dir_path): os.makedirs(dir_path)
         s_val = readDatas(path)
-        length = int(len(s_val)*0.9)
         rows = 240
         spans = 12
         pred_num = int(rows/spans)
         extra_num = 1040
         for span in range(spans):
-            start = extra_num+pred_num*span
-            end = start + pred_num
-            train_data = s_val[start-rows: start]
-            #pred_data = s_val[start:end]
+            start = extra_num+pred_num*span-rows
+            end = start+rows
+            train_data = s_val[start: end]
+            #print(train_data)
             model = Prophet(
                 changepoint_prior_scale=0.1,
                 n_changepoints=35,
@@ -47,15 +46,16 @@ if __name__=='__main__':
             model.fit(train_data)
 
             future = model.make_future_dataframe(periods=20)
-            future['cap'] = [train_data['cap'][start-1] for idx in range(len(future))]
+            future['cap'] = [train_data['cap'][start] for idx in range(len(future))]
             forecast = model.predict(future)
             model.plot(forecast)
-            filename = '%s/output%d.png'%(dir_path, span)
+            filename = '%s/output%d.png'%(dir_path, span+1)
             plt.savefig(filename)
+            #print(forecast)
             with open('%s/result.csv'%dir_path, 'a') as f:
                 if span == 0: f.write('date, actual, predict, error, confidence_interval\n')
                 for idx in range(pred_num):
-                    row_idx = start-rows+idx
-                    line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx],forecast['yhat'][rows+idx])
-                    line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][rows+idx]), forecast['yhat_lower'][rows+idx], forecast['yhat_upper'][rows+idx])
+                    row_idx = end+idx
+                    line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx],forecast['yhat'][pred_num+idx])
+                    line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][pred_num+idx]), forecast['yhat_lower'][pred_num+idx], forecast['yhat_upper'][pred_num+idx])
                     f.write(line)
