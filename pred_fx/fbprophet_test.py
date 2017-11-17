@@ -27,7 +27,7 @@ def readDatas(path):
 
 if __name__=='__main__':
     input_path = './data/Close/'
-    stocks = getStocks(input_path)[10:30]
+    stocks = getStocks(input_path)[50:60]
     #stocks = ['1605']
     #stocks = ['1605', '2502', '3382', '6501', '8267']
     day_length_list = [5, 10, 15, 20, 40, 60]

@@ -7,12 +7,13 @@ def getStocks():
     stocks = [item.split('.')[0] for item in dir_list]
     return stocks
 
+par = 100
 extra_num = 1160
 day_length_list = [5, 10, 15, 20, 40, 60]
 if __name__=='__main__':
     rate = float(sys.argv[1])
     # rate = 0.05
-    stocks = getStocks()[:10]
+    stocks = getStocks()[:50]
     # stocks = ['1605']
     close_path = 'data/Close/%s.csv'
     l = day_length_list[1]
@@ -60,7 +61,7 @@ if __name__=='__main__':
             line += '%d, %s, %d, %d, %.2f, %.2f\n'%(idx, date[idx+l], r_preds[idx], f_preds[idx], result, result-pre_result)
         #print('%0.2f + %.2f = %.2f'%(result, stack*close[len(r_preds)-1+l], result+stack*close[len(r_preds)-1+l]))
         result += stack*close[len(r_preds)-1+l]
-        line += '利益: %d, 利益率(％): %.2f\n'%(result-init, 100*(result-init)/init)
+        line += '利益: %d, 利益率(％): %.2f\n'%(result-init, par*(result-init)/init)
         whole_ret += result
-    print(100*(whole_ret-init*len(stocks))/(init*len(stocks)))
-    with open('result/return_%d.csv'%(100*rate), 'w', encoding='utf-8') as f: f.write(line)
+    print(par*(whole_ret-init*len(stocks))/(init*len(stocks)))
+    with open('result/return_%d.csv'%(par*rate), 'w', encoding='utf-8') as f: f.write(line)

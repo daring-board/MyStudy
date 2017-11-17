@@ -14,7 +14,7 @@ def getStocks():
 if __name__=='__main__':
     rate = float(sys.argv[1])
     # rate = 0.05
-    stocks = getStocks()[:10]
+    stocks = getStocks()[:50]
     for stock in stocks:
         print(stock)
         dir_path = './result/%s'%stock
