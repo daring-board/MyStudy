@@ -5,6 +5,11 @@ import pandas as pd
 from matplotlib import pylab as plt
 from fbprophet import Prophet
 
+def getStocks(dir_path):
+    dir_list = os.listdir(dir_path)
+    stocks = [item.split('.')[0] for item in dir_list]
+    return stocks
+
 def readDatas(path):
     dateparse = lambda dates: pd.datetime.strptime(dates, '%Y/%m/%d')
     close = pd.read_csv(path, index_col=None)
@@ -21,17 +26,20 @@ def readDatas(path):
     return s_val
 
 if __name__=='__main__':
-    stocks = ['1605', '2502', '3382', '6501', '8267']
+    input_path = './data/Close/'
+    stocks = getStocks(input_path)[10:30]
     #stocks = ['1605']
+    #stocks = ['1605', '2502', '3382', '6501', '8267']
+    day_length_list = [5, 10, 15, 20, 40, 60]
+    rows = 240
+    pred_num = 5
+    spans = int(120/pred_num)
+    extra_num = 1160
     for stock in stocks:
-        path = './data/Close/%s.csv'%stock
+        path = input_path+'%s.csv'%stock
         dir_path = './result/%s'%stock
         if not os.path.exists(dir_path): os.makedirs(dir_path)
         s_val = readDatas(path)
-        rows = 240
-        spans = 12
-        pred_num = int(rows/spans)
-        extra_num = 1040
         for span in range(spans):
             start = extra_num+pred_num*span-rows
             end = start+rows
@@ -47,17 +55,21 @@ if __name__=='__main__':
             )
             model.fit(train_data)
 
-            future = model.make_future_dataframe(periods=20)
+            periods = 60
+            future = model.make_future_dataframe(periods=periods)
             future['cap'] = [train_data['cap'][start] for idx in range(len(future))]
             forecast = model.predict(future)
             model.plot(forecast)
             filename = '%s/output%d.png'%(dir_path, span+1)
             plt.savefig(filename)
-            #print(forecast)
-            with open('%s/result.csv'%dir_path, 'a') as f:
-                if span == 0: f.write('date, actual, predict, error, confidence_interval\n')
-                for idx in range(pred_num):
-                    row_idx = end+idx
-                    line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx],forecast['yhat'][pred_num+idx])
-                    line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][pred_num+idx]), forecast['yhat_lower'][pred_num+idx], forecast['yhat_upper'][pred_num+idx])
-                    f.write(line)
+            # print(forecast)
+            for pred_date in day_length_list:
+                if (span*pred_num)%pred_date != 0: continue
+                with open('%s/result_%dd.csv'%(dir_path, pred_date), 'a') as f:
+                    if span == 0: f.write('date, actual, predict, error, confidence_interval\n')
+                    for idx in range(pred_date):
+                        row_idx = end+idx
+                        f_idx = len(forecast)-periods+idx
+                        line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx],forecast['yhat'][f_idx])
+                        line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][f_idx]), forecast['yhat_lower'][f_idx], forecast['yhat_upper'][f_idx])
+                        f.write(line)
