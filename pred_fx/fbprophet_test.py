@@ -22,6 +22,7 @@ def readDatas(path):
 
 if __name__=='__main__':
     stocks = ['1605', '2502', '3382', '6501', '8267']
+    #stocks = ['1605']
     for stock in stocks:
         path = './data/Close/%s.csv'%stock
         dir_path = './result/%s'%stock
@@ -37,10 +38,11 @@ if __name__=='__main__':
             train_data = s_val[start: end]
             #print(train_data)
             model = Prophet(
-                changepoint_prior_scale=0.1,
-                n_changepoints=35,
+                growth='logistic',
+                changepoint_prior_scale=0.01,
+                n_changepoints=150,
                 yearly_seasonality=True,
-                weekly_seasonality=False,
+                weekly_seasonality=True,
                 daily_seasonality=True
             )
             model.fit(train_data)
