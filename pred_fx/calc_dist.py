@@ -54,14 +54,15 @@ class CalcDist():
                         break
                 if flag: c_set.append(tmp)
             count += 1
-        print(c_set)
+        return c_set
 
     def main(self):
         stocks = self.getStocks(self.__input_path)[:60]
         for noday in self.__nd_list:
             mtx = self.createDistMat(stocks, noday)
             ordered_list = sorted(mtx.items(), key=lambda x: x[1])
-            self.createClusters(stocks, ordered_list)
+            clusters = self.createClusters(stocks, ordered_list)
+            print(clusters)
 
 if __name__=='__main__':
     cd = CalcDist()
