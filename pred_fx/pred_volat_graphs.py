@@ -1,5 +1,6 @@
 import os
 import gc
+import sys
 import os.path
 import numpy as np
 import pandas as pd
@@ -68,6 +69,10 @@ class PredVolatGraphs():
                 filename = '%s/output%d.png'%(dir_path, span+1)
                 plt.savefig(filename)
                 plt.close()
+                model.plot_components(forecast)
+                filename = '%s/trend%s.png'%(dir_path, span+1)
+                plt.savefig(filename)
+                plt.close()
                 for pred_date in self.__dlen_list:
                     if (span*self.__pred_num)%pred_date != 0: continue
                     with open('%s/result_%dd.csv'%(dir_path, pred_date), 'a') as f:
@@ -77,6 +82,13 @@ class PredVolatGraphs():
                             f_idx = len(forecast)-self.__periods+idx
                             line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx],forecast['yhat'][f_idx])
                             line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][f_idx]), forecast['yhat_lower'][f_idx], forecast['yhat_upper'][f_idx])
+                            f.write(line)
+                    with open('%s/trend_%dd.csv'%(dir_path, pred_date), 'a') as f:
+                        if span == 0: f.write('date, trend')
+                        for idx in range(pred_date):
+                            row_idx = end+idx
+                            f_idx = len(forecast)-self.__periods+idx
+                            line = '%s, %f\n'%(s_val['ds'][row_idx], forecast['trend'][f_idx])
                             f.write(line)
                 del forecast
                 del future
