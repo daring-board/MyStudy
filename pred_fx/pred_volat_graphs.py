@@ -84,7 +84,7 @@ class PredVolatGraphs():
                             line += ', %f, (%f_%f)\n'%( abs(s_val['y'][row_idx]-forecast['yhat'][f_idx]), forecast['yhat_lower'][f_idx], forecast['yhat_upper'][f_idx])
                             f.write(line)
                     with open('%s/trend_%dd.csv'%(dir_path, pred_date), 'a') as f:
-                        if span == 0: f.write('date, trend')
+                        if span == 0: f.write('date, trend\n')
                         for idx in range(pred_date):
                             row_idx = end+idx
                             f_idx = len(forecast)-self.__periods+idx
