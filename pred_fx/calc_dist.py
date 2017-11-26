@@ -8,7 +8,7 @@ class CalcDist():
     Use k-clustering
     '''
     def __init__(self):
-        self.__k = 20
+        self.__k = 30
         self.__span = 60
         self.__input_path = './data/Close/'
         self.__nd_list = ['5d', '10d', '15d', '20d']
