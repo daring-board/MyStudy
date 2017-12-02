@@ -11,8 +11,7 @@ class CalcDist():
         self.__k = 30
         self.__span = 60
         self.__input_path = './data/Close/'
-        self.__nd_list = ['5d', '10d', '15d', '20d']
-#        self.__nd_list = ['5d']
+        self.__nd_list = ['5d', '10d', '20d']
 
     def getStocks(self, dir_path):
         dir_list = os.listdir(dir_path)
@@ -37,7 +36,7 @@ class CalcDist():
         return d_mtx
 
     def Find(self, u):
-        '''return Name of set contains vertex u
+        ''' return Name of set contains vertex u
         '''
         return self.__comp[u]
 
@@ -81,8 +80,6 @@ class CalcDist():
             ordered_list = sorted(mtx.items(), key=lambda x: x[1])
             clusters = self.createClusters(stocks, ordered_list)
             clust[noday] = clusters
-            # print('')
-            # for c in clusters: print(c)
         return clust
 
 if __name__=='__main__':
