@@ -39,7 +39,10 @@ def construct(s_info, date, c):
 
 if __name__=='__main__':
     stocks = getStocks()[:60]
-    noday = '5d'
+#    noday = '5d'
+    noday = '10d'
+#    noday = '20d'
+#    noday = '60d'
     cd = CalcDist()
     clust = cd.main()
     c_set = clust[noday]
@@ -47,7 +50,7 @@ if __name__=='__main__':
     tax = 0
     for c in c_set:
         s_infos = {}
-        commit, savings = 0, 0
+        price = whole / len(c_set)
         if len(c) < 4: continue
         for stock in c: ret, date = readDatas(stock, noday)
         stock_dict = {stock: readClose(stock) for stock in c}
@@ -60,24 +63,26 @@ if __name__=='__main__':
                 num = len(item[3])
                 if num == 0: continue
                 # 買い
+#                if item[1] == 1 and price - num * stock_dict[stock][d] > 0:
                 if item[1] == 1:
-                    savings -= num * stock_dict[stock][d]
+                    price -= num * stock_dict[stock][d]
                     stocks[stock] += num
                     tax +=  0.02 * num * stock_dict[stock][d]
                 # 売り
+#                if item[1] == -1 and stocks[stock] - num > 0:
                 if item[1] == -1:
-                    commit += num * stock_dict[stock][d]
+                    price += num * stock_dict[stock][d]
                     stocks[stock] -= num
                     tax +=  0.02 * num * stock_dict[stock][d]
             if count % int(noday[:-1]) == 0:
                 for stock in c:
-                    commit += stocks[stock] * stock_dict[stock][d]
+                    price += stocks[stock] * stock_dict[stock][d]
                     stocks[stock] = 0
             count += 1
-#            if count % int(noday[:-1]) == 0: print('%s: %.2f'%(d, savings + commit))
+            if count % int(noday[:-1]) == 0: print('%s: %.2f'%(d, price))
 #            for stock in c: print('%s: %d'%(stock, stocks[stock]))
 #            print('\n')
-        whole += savings + commit
+        whole += price
         print(whole)
     print('Gross: %.2f, 利益: %.2f, 利益率: %.2f'%(whole, whole-start, (whole-start)/start))
 #    print('Net: %.2f, 利益: %.2f, 利益率: %.2f'%(whole-tax, whole-start-tax, (whole-start-tax)/start))

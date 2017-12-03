@@ -11,7 +11,7 @@ class CalcDist():
         self.__k = 30
         self.__span = 60
         self.__input_path = './data/Close/'
-        self.__nd_list = ['5d', '10d', '20d']
+        self.__nd_list = ['5d', '10d', '20d', '60d']
 
     def getStocks(self, dir_path):
         dir_list = os.listdir(dir_path)
