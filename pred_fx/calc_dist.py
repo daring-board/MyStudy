@@ -11,7 +11,7 @@ class CalcDist():
         self.__k = 30
         self.__span = 60
         self.__input_path = './data/Close/'
-        self.__nd_list = ['5d', '10d', '20d', '60d']
+        self.__nd_list = ['5d', '10d', '20d']
 
     def getStocks(self, dir_path):
         dir_list = os.listdir(dir_path)
@@ -73,7 +73,7 @@ class CalcDist():
         return clusters
 
     def main(self):
-        stocks = self.getStocks(self.__input_path)[:60]
+        stocks = self.getStocks(self.__input_path)
         clust = {}
         for noday in self.__nd_list:
             mtx = self.createDistMat(stocks, noday)

@@ -19,7 +19,7 @@ def readDatas(stock, noday):
 def readClose(stock):
     path = './data/Close/%s.csv'%stock
     datas = [line.strip().split(',') for line in open(path, 'r', encoding='utf-8')][1:]
-    dic = {row[0]: float(row[1]) for row in datas}
+    dic = {row[1]: float(row[2]) for row in datas}
     return dic
 
 def construct(s_info, date, c):
@@ -38,9 +38,9 @@ def construct(s_info, date, c):
     return s_info
 
 if __name__=='__main__':
-    stocks = getStocks()[:60]
-#    noday = '5d'
-    noday = '10d'
+    stocks = getStocks()
+    noday = '5d'
+#    noday = '10d'
 #    noday = '20d'
 #    noday = '60d'
     cd = CalcDist()
