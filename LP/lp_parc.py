@@ -54,10 +54,23 @@ def main(stock):
     dates = [key for key in datas.keys()]
     length = 10
     for span in [20, 10]:
+        '''
+        最小化を行う
+        '''
         problem = pulp.LpProblem('Problem Name', pulp.LpMinimize)
         #problem = pulp.LpProblem('Problem Name', pulp.LpMaximize)
         W = [pulp.LpVariable('w%d'%idx, -0.5, 0.5, 'Continuous') for idx in range(1, 7)]
         t1, t2 = {}, {}
+        '''
+        目的関数
+        '''
+        expr = None
+        for idx in range(len(dates)-span-length, len(dates)-span): expr += (t1[idx] + t2[idx])
+        problem += expr
+        print(problem)
+        '''
+        制約条件
+        '''
         for idx in range(len(dates)-span-length, len(dates)-span):
             date = dates[idx]
             b1_date = dates[idx-6]
@@ -80,10 +93,6 @@ def main(stock):
             problem += (float(u_scores[date]) + s1*W[0] + s2*W[1] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] >= -t1[idx])
             problem += (float(d_scores[date]) + s3*W[2] + s4*W[3] + d_sign*s5*W[4] + d_sign*s6*W[5] - c_minus[date] <= t2[idx])
             problem += (float(d_scores[date]) + s3*W[2] + s4*W[3] + d_sign*s5*W[4] + d_sign*s6*W[5] - c_minus[date] >= -t2[idx])
-        expr = None
-        for idx in range(len(dates)-span-length, len(dates)-span): expr += (t1[idx] + t2[idx])
-        problem += expr
-        print(problem)
         status = problem.solve()
         #print(status)
         for v in problem.variables(): print('%s=%.2f'%(v.name, v.varValue))
