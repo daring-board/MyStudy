@@ -94,7 +94,7 @@ if __name__=='__main__':
     path = './data/Close/'
     stocks = getStocks(path)
     pvg = PredVolatGraphs(path)
-    # p = Pool(4)
-    # p.map_async(pvg.main, stocks).get(999999)
-    # p.close()
-    for stock in stocks: pvg.main(stock)
+    p = Pool(4)
+    p.map_async(pvg.main, stocks).get(999999)
+    p.close()
+#    for stock in stocks: pvg.main(stock)
