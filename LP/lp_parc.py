@@ -3,10 +3,17 @@ import pulp
 import pandas as pd
 import numpy as np
 
-def readData():
-    path = './data/test.csv'
-    datas = [line for line in open(path, 'r', encoding='utf-8')][1:481]
-    datas = [line.split(',') for line in datas]
+# def readData():
+#     path = './data/test.csv'
+#     datas = [line for line in open(path, 'r', encoding='utf-8')][1:481]
+#     datas = [line.split(',') for line in datas]
+#     datas = {row[0]:(float(row[1]), row[3], row[4]) for row in datas}
+#     return datas
+
+def readData(stock):
+    path = './data/Table/hantei_%s_5d_top20_m6.csv'%stock
+    datas = [line for line in open(path, 'r', encoding='utf-8')][1:]
+    datas = [line.replace('"', '').split(',') for line in datas]
     datas = {row[0]:(float(row[1]), row[3], row[4]) for row in datas}
     return datas
 
@@ -40,17 +47,18 @@ def judge(date, scores1, scores2, correct1, correct2):
     if pred == correct2[date]: flag = True
     return flag
 
-if __name__=='__main__':
-    datas = readData()
+def main(stock):
+    datas = readData(stock)
     diff1, diff2, c_plus, c_minus = formData(datas)
     u_scores, d_scores = extractScores(datas)
     dates = [key for key in datas.keys()]
+    length = 10
     for span in [20, 10]:
         problem = pulp.LpProblem('Problem Name', pulp.LpMinimize)
         #problem = pulp.LpProblem('Problem Name', pulp.LpMaximize)
         W = [pulp.LpVariable('w%d'%idx, -0.5, 0.5, 'Continuous') for idx in range(1, 7)]
         t1, t2 = {}, {}
-        for idx in range(len(dates)-span, len(dates)-span+10):
+        for idx in range(len(dates)-span-length, len(dates)-span):
             date = dates[idx]
             b1_date = dates[idx-6]
             b2_date = dates[idx-7]
@@ -68,15 +76,21 @@ if __name__=='__main__':
             #print(d_scores[date])
             t1[idx] = pulp.LpVariable('t1_%d'%idx, 0, 1)
             t2[idx] = pulp.LpVariable('t2_%d'%idx, 0, 1)
-            problem += (float(u_scores[date]) + s1*W[1] + s2*W[2] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] <= t1[idx])
-            problem += (float(u_scores[date]) + s1*W[1] + s2*W[2] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] >= -t1[idx])
+            problem += (float(u_scores[date]) + s1*W[0] + s2*W[1] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] <= t1[idx])
+            problem += (float(u_scores[date]) + s1*W[0] + s2*W[1] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] >= -t1[idx])
             problem += (float(d_scores[date]) + s3*W[2] + s4*W[3] + d_sign*s5*W[4] + d_sign*s6*W[5] - c_minus[date] <= t2[idx])
             problem += (float(d_scores[date]) + s3*W[2] + s4*W[3] + d_sign*s5*W[4] + d_sign*s6*W[5] - c_minus[date] >= -t2[idx])
         expr = None
-        for idx in range(len(dates)-span, len(dates)-span+5): expr += (t1[idx] + t2[idx])
+        for idx in range(len(dates)-span-length, len(dates)-span): expr += (t1[idx] + t2[idx])
         problem += expr
         print(problem)
         status = problem.solve()
         #print(status)
         for v in problem.variables(): print('%s=%.2f'%(v.name, v.varValue))
     #    delta = [pulp.LpVariable('w%d'%idx, 0, 1, 'Integetr') for idx in ]
+
+if __name__=='__main__':
+    stocks = []
+    with open('stock_list.csv', 'r') as f:
+        stocks = [line.split(',')[0] for line in f][1:2]
+    for stock in stocks: main(stock)
