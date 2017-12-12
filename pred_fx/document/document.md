@@ -3,6 +3,9 @@
 ## Theoretical document
 https://scrapbox.io/mahotox101500-60434823/Prediction_for_Stock_Price
 
+## Usage
+py calc_return3.py 5d
+
 ## Classis
 
 1. Class PredVolatGraphs  

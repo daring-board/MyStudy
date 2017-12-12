@@ -39,23 +39,27 @@ def construct(s_info, date, c):
 
 if __name__=='__main__':
     stocks = getStocks()
-    noday = '5d'
+    noday = sys.argv[1]
+#    noday = '5d'
 #    noday = '10d'
 #    noday = '20d'
 #    noday = '60d'
+    out_path = './result/pair_trade_%s.txt'%noday
     cd = CalcDist()
     clust = cd.main()
     c_set = clust[noday]
     whole = start = 100000
     tax = 0
+    with open(out_path, 'w') as f: f.write('■PairTrade Result\n')
     for c in c_set:
         s_infos = {}
-        price = whole / len(c_set)
+        price = 0#whole / len(c_set)
         if len(c) < 4: continue
+        with open(out_path, 'a') as f: f.write('Cluster: %s\n'%str(c))
         for stock in c: ret, date = readDatas(stock, noday)
         stock_dict = {stock: readClose(stock) for stock in c}
         stocks = {stock: 0 for stock in c}
-        count = 1
+        count = 0
         for d in date:
             s_info = construct(s_infos, d, c)
             for stock in c:
@@ -74,15 +78,22 @@ if __name__=='__main__':
                     price += num * stock_dict[stock][d]
                     stocks[stock] -= num
                     tax +=  0.02 * num * stock_dict[stock][d]
-            if count % int(noday[:-1]) == 0:
+            if count % int(noday[:-1]) == int(noday[:-1])-1:
                 for stock in c:
                     price += stocks[stock] * stock_dict[stock][d]
                     stocks[stock] = 0
+                whole += price
+                with open(out_path, 'a') as f: f.write('%s: %.2f\n'%(d, price))
+                print('%s: %.2f'%(d, price))
+                price = 0
             count += 1
-            if count % int(noday[:-1]) == 0: print('%s: %.2f'%(d, price))
 #            for stock in c: print('%s: %d'%(stock, stocks[stock]))
 #            print('\n')
-        whole += price
+        with open(out_path, 'a') as f:
+            f.write('Cluster_price: %.2f\n'%price)
+            f.write('G_price: %d\n'%whole)
         print(whole)
+    with open(out_path, 'a') as f:
+        f.write('Gross: %.2f, 利益: %.2f, 利益率: %.2f\n'%(whole, whole-start, (whole-start)/start))
     print('Gross: %.2f, 利益: %.2f, 利益率: %.2f'%(whole, whole-start, (whole-start)/start))
 #    print('Net: %.2f, 利益: %.2f, 利益率: %.2f'%(whole-tax, whole-start-tax, (whole-start-tax)/start))
