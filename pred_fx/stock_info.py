@@ -18,8 +18,8 @@ class StockInfo():
     f: flag of Pair trade
     p: Rate Confidence
     '''
-    th = 0.8
     alf = 0.8
+    th = 0.8
     def __init__(self, stock, k):
         self.__val = [0, 0, 0, [], 0]
         self.__stock = stock
