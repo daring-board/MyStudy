@@ -22,9 +22,9 @@ def readClose(stock):
     dic = {row[1]: float(row[2]) for row in datas}
     return dic
 
-def construct(s_info, date, c):
+def construct(s_info, date, c, k):
     for stock in c:
-        s_info = StockInfo(stock)
+        s_info = StockInfo(stock, k)
         s_info.readDatas()
         s_info.setDatas(d)
         s_infos[stock] = s_info
@@ -41,9 +41,6 @@ if __name__=='__main__':
     stocks = getStocks()
     noday = sys.argv[1]
 #    noday = '5d'
-#    noday = '10d'
-#    noday = '20d'
-#    noday = '60d'
     out_path = './result/pair_trade_%s.txt'%noday
     cd = CalcDist()
     clust = cd.main()
@@ -61,7 +58,7 @@ if __name__=='__main__':
         stocks = {stock: 0 for stock in c}
         count = 0
         for d in date:
-            s_info = construct(s_infos, d, c)
+            s_info = construct(s_infos, d, c, int(noday[:-1]))
             for stock in c:
                 item = s_infos[stock].getVal()
                 num = len(item[3])

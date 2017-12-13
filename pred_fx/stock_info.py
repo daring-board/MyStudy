@@ -18,11 +18,12 @@ class StockInfo():
     f: flag of Pair trade
     p: Rate Confidence
     '''
-    k = 10
     th = 0.8
-    def __init__(self, stock):
+    alf = 0.8
+    def __init__(self, stock, k):
         self.__val = [0, 0, 0, [], 0]
         self.__stock = stock
+        self.k = k
 
     def readDatas(self):
         path = './result/%s/result_5d.csv'%self.__stock
@@ -57,7 +58,7 @@ class StockInfo():
         item = self.dats[self.dats['date'] == date]['confidence_interval'].values[0]
         val = item.split('_')[1].replace(')','')
         eps = float(val) - self.__val[0]
-        self.__val[2] = eps
+        self.__val[2] = self.alf * eps
 
     def calcPairFlag(self, st):
         t1 = self.__val[1]
