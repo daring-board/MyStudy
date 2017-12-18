@@ -53,19 +53,25 @@ def main(stock):
     u_scores, d_scores = extractScores(datas)
     dates = [key for key in datas.keys()]
     length = 10
-    for span in [20, 10]:
+    print(len(dates))
+    for span in [20, 10, 0]:
         '''
         最小化を行う
         '''
         problem = pulp.LpProblem('Problem Name', pulp.LpMinimize)
-        #problem = pulp.LpProblem('Problem Name', pulp.LpMaximize)
+        '''
+        変数
+        '''
         W = [pulp.LpVariable('w%d'%idx, -0.5, 0.5, 'Continuous') for idx in range(1, 7)]
         t1, t2 = {}, {}
         '''
         目的関数
         '''
         expr = None
-        for idx in range(len(dates)-span-length, len(dates)-span): expr += (t1[idx] + t2[idx])
+        for idx in range(len(dates)-span-length, len(dates)-span):
+            t1[idx] = pulp.LpVariable('t1_%d'%idx, 0, 1)
+            t2[idx] = pulp.LpVariable('t2_%d'%idx, 0, 1)
+            expr += (t1[idx] + t2[idx])
         problem += expr
         print(problem)
         '''
@@ -87,14 +93,12 @@ def main(stock):
             #print('%d, %d, %d, %d, %d, %d, %d, %d'%(s1, s2, s3, s4, s5, s6, u_sign, d_sign))
             #print(u_scores[date])
             #print(d_scores[date])
-            t1[idx] = pulp.LpVariable('t1_%d'%idx, 0, 1)
-            t2[idx] = pulp.LpVariable('t2_%d'%idx, 0, 1)
             problem += (float(u_scores[date]) + s1*W[0] + s2*W[1] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] <= t1[idx])
             problem += (float(u_scores[date]) + s1*W[0] + s2*W[1] + u_sign*s5*W[4] + u_sign*s6*W[5] - c_plus[date] >= -t1[idx])
             problem += (float(d_scores[date]) + s3*W[2] + s4*W[3] + d_sign*s5*W[4] + d_sign*s6*W[5] - c_minus[date] <= t2[idx])
             problem += (float(d_scores[date]) + s3*W[2] + s4*W[3] + d_sign*s5*W[4] + d_sign*s6*W[5] - c_minus[date] >= -t2[idx])
         status = problem.solve()
-        #print(status)
+        print(status)
         for v in problem.variables(): print('%s=%.2f'%(v.name, v.varValue))
     #    delta = [pulp.LpVariable('w%d'%idx, 0, 1, 'Integetr') for idx in ]
 
@@ -102,4 +106,6 @@ if __name__=='__main__':
     stocks = []
     with open('stock_list.csv', 'r') as f:
         stocks = [line.split(',')[0] for line in f][1:2]
-    for stock in stocks: main(stock)
+    for stock in stocks:
+        print(stock)
+        main(stock)
