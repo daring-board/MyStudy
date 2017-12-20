@@ -56,21 +56,37 @@ if __name__=='__main__':
         for stock in c: ret, date = readDatas(stock, noday)
         stock_dict = {stock: readClose(stock) for stock in c}
         stocks = {stock: 0 for stock in c}
+        s_info = {stock: 0 for stock in c}
         count = 0
         for d in date:
+            pre_info = s_info
             s_info = construct(s_infos, d, c, int(noday[:-1]))
             for stock in c:
                 item = s_infos[stock].getVal()
                 num = len(item[3])
+                '''
+                前日も同じ銘柄でペアトレードが発生していたら取引しない
+                '''
+                # flags, pre_flags = item[3], pre_info[stock].getVal()[3]
+                # for flag in flags:
+                #     for pf in pre_flags:
+
+                '''
+                ペアトレードフラグが立っていない銘柄はスキップ
+                '''
                 if num == 0: continue
-                # 買い
+                '''
+                トレンドが上昇ならば、買い
+                ''''
 #                if item[1] == 1 and price - num * stock_dict[stock][d] > 0:
                 if item[1] == 1:
                     price -= num * stock_dict[stock][d]
                     stocks[stock] += num
                     tax +=  0.02 * num * stock_dict[stock][d]
-                # 売り
 #                if item[1] == -1 and stocks[stock] - num > 0:
+                '''
+                トレンドが下落ならば、売り
+                '''
                 if item[1] == -1:
                     price += num * stock_dict[stock][d]
                     stocks[stock] -= num
