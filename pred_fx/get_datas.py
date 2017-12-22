@@ -7,6 +7,7 @@ config = cp.SafeConfigParser()
 config.read('./config.ini')
 
 def createCSV(path, code):
+    all_rows = int(config.get('config', 'all_rows'))
     data = quandl.get('TSE/%s'%code, rows=rows)
     df = pd.DataFrame({
             'ds': data.index.astype('str'),
@@ -19,9 +20,10 @@ def createCSV(path, code):
             'ds': datas['ds'],
             'y': datas['y']
         })
-    print(df2)
     df = pd.concat([df2, df], axis=0)
-    df.index = range(1, 360+1)
+    df.index = range(1, all_rows+int(rows)+1)
+    df = df[int(rows):]
+    df.index = range(1, all_rows+1)
     df.to_csv('%s/%s.csv'%(path, code), encoding='utf-8')
 
 if __name__=='__main__':
