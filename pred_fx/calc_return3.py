@@ -42,15 +42,17 @@ if __name__=='__main__':
     noday = sys.argv[1]
 #    noday = '5d'
     out_path = './result/pair_trade_%s.txt'%noday
-    cd = CalcDist()
+    cd = CalcDist(noday)
     clust = cd.main()
     c_set = clust[noday]
     whole = start = 100000
-    tax = 0
+    all_tax = 0
     with open(out_path, 'w') as f: f.write('■PairTrade Result\n')
     for c in c_set:
         s_infos = {}
         price = 0#whole / len(c_set)
+        cl_price = 0
+        tax = 0
         if len(c) < 4: continue
         with open(out_path, 'a') as f: f.write('Cluster: %s\n'%str(c))
         for stock in c: ret, date = readDatas(stock, noday)
@@ -73,7 +75,7 @@ if __name__=='__main__':
                 if item[1] == 1:
                     price -= num * stock_dict[stock][d]
                     stocks[stock] += num
-                    tax +=  0.02 * num * stock_dict[stock][d]
+                    tax +=  0.002 * num * stock_dict[stock][d]
 #                if item[1] == -1 and stocks[stock] - num > 0:
                 '''
                 トレンドが下落ならば、売り
@@ -81,23 +83,27 @@ if __name__=='__main__':
                 if item[1] == -1:
                     price += num * stock_dict[stock][d]
                     stocks[stock] -= num
-                    tax +=  0.02 * num * stock_dict[stock][d]
+                    tax +=  0.002 * num * stock_dict[stock][d]
             if count % int(noday[:-1]) == int(noday[:-1])-1:
                 for stock in c:
                     price += stocks[stock] * stock_dict[stock][d]
                     stocks[stock] = 0
                 whole += price
+                all_tax += tax
+                cl_price += price
                 with open(out_path, 'a') as f: f.write('%s: %.2f\n'%(d, price))
                 print('%s: %.2f'%(d, price))
-                price = 0
+                price, tax = 0, 0
             count += 1
 #            for stock in c: print('%s: %d'%(stock, stocks[stock]))
 #            print('\n')
         with open(out_path, 'a') as f:
-            f.write('Cluster_price: %.2f\n'%price)
+            f.write('Cluster_price: %.2f\n'%cl_price)
             f.write('G_price: %d\n'%whole)
         print(whole)
+        cl_price = 0
     with open(out_path, 'a') as f:
         f.write('Gross: %.2f, 利益: %.2f, 利益率: %.2f\n'%(whole, whole-start, (whole-start)/start))
+        f.write('Net: %.2f, 利益: %.2f, 利益率: %.2f\n'%(whole-all_tax, whole-all_tax-start, (whole-all_tax-start)/start))
     print('Gross: %.2f, 利益: %.2f, 利益率: %.2f'%(whole, whole-start, (whole-start)/start))
 #    print('Net: %.2f, 利益: %.2f, 利益率: %.2f'%(whole-tax, whole-start-tax, (whole-start-tax)/start))

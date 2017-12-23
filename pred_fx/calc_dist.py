@@ -7,11 +7,11 @@ class CalcDist():
     Stock i, j's predict stock price volatility graphs
     Use k-clustering
     '''
-    def __init__(self):
+    def __init__(self, noday):
         self.__k = 70
         self.__span = 60
         self.__input_path = './data/Close/'
-        self.__nd_list = ['5d', '10d', '20d']
+        self.__noday = noday
 
     def getStocks(self, dir_path):
         dir_list = os.listdir(dir_path)
@@ -75,11 +75,11 @@ class CalcDist():
     def main(self):
         stocks = self.getStocks(self.__input_path)
         clust = {}
-        for noday in self.__nd_list:
-            mtx = self.createDistMat(stocks, noday)
-            ordered_list = sorted(mtx.items(), key=lambda x: x[1])
-            clusters = self.createClusters(stocks, ordered_list)
-            clust[noday] = clusters
+        noday = self.__noday
+        mtx = self.createDistMat(stocks, noday)
+        ordered_list = sorted(mtx.items(), key=lambda x: x[1])
+        clusters = self.createClusters(stocks, ordered_list)
+        clust[noday] = clusters
         return clust
 
 if __name__=='__main__':
