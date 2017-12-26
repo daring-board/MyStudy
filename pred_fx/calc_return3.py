@@ -22,10 +22,11 @@ def readClose(stock):
     dic = {row[1]: float(row[2]) for row in datas}
     return dic
 
-def construct(s_info, date, c, k):
+def construct(s_info, date, c, noday):
+    k = int(noday[:-1])
     for stock in c:
         s_info = StockInfo(stock, k)
-        s_info.readDatas()
+        s_info.readDatas(noday)
         s_info.setDatas(d)
         s_infos[stock] = s_info
     for idx in range(len(list(c))):
@@ -60,7 +61,7 @@ if __name__=='__main__':
         stocks = {stock: 0 for stock in c}
         count = 0
         for d in date:
-            s_info = construct(s_infos, d, c, int(noday[:-1]))
+            s_info = construct(s_infos, d, c, noday)
             for stock in c:
                 item = s_infos[stock].getVal()
                 num = len(item[3])

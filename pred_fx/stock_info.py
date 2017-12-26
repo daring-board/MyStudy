@@ -25,8 +25,8 @@ class StockInfo():
         self.__stock = stock
         self.k = k
 
-    def readDatas(self):
-        path = './result/%s/result_5d.csv'%self.__stock
+    def readDatas(self, noday):
+        path = './result/%s/result_%s.csv'%(self.__stock, noday)
         self.dats = pd.read_csv(path, index_col=None)
 
     def setDatas(self, date):
@@ -66,8 +66,8 @@ class StockInfo():
         if t1 == t2 or t1 == 0 or t2 == 0: return
         date = self.__date
         idx = self.dats[self.dats['date'] == date].index[0]
-        dat = self.dats[idx+3: idx+self.k+1]
-        count = 3
+        dat = self.dats[idx: idx+self.k+1]
+        count = 0
         for date in dat['date']:
             p1_k = float(self.dats[self.dats['date'] == date]['predict'].values[0])
             p2_k = float(st.dats[st.dats['date'] == date]['predict'].values[0])
