@@ -98,8 +98,8 @@ if __name__=='__main__':
 #            for stock in c: print('%s: %d'%(stock, stocks[stock]))
 #            print('\n')
         with open(out_path, 'a') as f:
-            f.write('Cluster_price: %.2f\n'%cl_price)
-            f.write('G_price: %d\n'%whole)
+            f.write('Cluster_return: %.2f\n'%cl_price)
+            f.write('G_return: %d\n'%whole)
         print(whole)
         cl_price = 0
     with open(out_path, 'a') as f:
