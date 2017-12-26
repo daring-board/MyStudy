@@ -16,6 +16,7 @@ class DynamicPrograming():
         self.trend = {date: 1 if trend[date] < 0 else 0 for date in trend.keys()}
         self.DtoN = {date[idx]: idx for idx in range(len(date))}
         self.NtoD = date
+        self.len = len(date)
 
     '''
     :buy    : date(string)
@@ -24,8 +25,8 @@ class DynamicPrograming():
     def expectReturn(self, buy, sell):
         print('expectReturn')
         z = sum(self.trend[self.NtoD[idx]] for idx in range(self.DtoN[buy], self.DtoN[sell]+1))
-        term1 = (self.x-self.DtoN[sell]-self.DtoN[buy]+1)*(self.x-self.DtoN[sell]-self.DtoN[buy]+1)
-        term1 = 1 - term1 / ((self.x-self.DtoN[buy]+1)*(self.x-self.DtoN[buy]+1))
+        term1 = (self.x-self.DtoN[sell]-self.DtoN[buy]+1)
+        term1 = 1 - term1 / (self.x-self.len-self.DtoN[buy]+1)
         term2 = 1 - z / (self.DtoN[sell]-self.DtoN[buy]+1)
         term3 = self.v[sell] - self.v[buy]
         print('%f*%f*%f=%f\n'%(term1, term2, term3, term1*term2*term3))
