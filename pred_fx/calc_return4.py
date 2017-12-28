@@ -17,6 +17,8 @@ class DynamicPrograming():
         self.DtoN = {date[idx]: idx for idx in range(len(date))}
         self.NtoD = date
         self.len = len(date)
+        self.act = {}
+        self.opt = [0 for idx in range(self.len+1)]
 
     '''
     :buy    : date(string)
@@ -32,8 +34,31 @@ class DynamicPrograming():
         print('%f*%f*%f=%f\n'%(term1, term2, term3, term1*term2*term3))
         return term1*term2*term3
 
-    def commit(self):
+    def commit(self, date):
         print('commit')
+        price = self.v
+        s_t = sum(price[self.act[key]] if date == self.act[key] else 0 for key in self.act.keys())
+        return s_t
+
+    def maxExpect(self, today):
+        max_val = 0
+        d_tmp = 0
+        for idx in range(self.DtoN[today]+1, self.len):
+            tmp = self.expectReturn(today, self.NtoD[idx])
+            if tmp > max_val:
+                max_val = tmp
+                d_tmp = self.NtoD[idx]
+        self.act[today] = d_tmp
+        return max_val
+
+    def main(self):
+        for idx in range(1, self.len+1):
+            today = self.NtoD[idx-1]
+            e_ta = self.maxExpect(today)
+            s_t = self.commit(today)
+            self.opt[idx] = e_ta + s_t + self.opt[idx-1]
+        print(self.opt)
+        print(self.act)
 
 def getStocks():
     input_path = './data/Close/'
@@ -68,7 +93,5 @@ if __name__=='__main__':
     trend, date = readTrend(stock, noday)
     trend = {date[idx]: float(trend[idx].strip()) for idx in range(len(date))}
     diff_trend = {date[idx]: trend[date[idx]]-trend[date[idx-1]] for idx in range(1, len(date))}
-    print(diff_trend)
     dp = DynamicPrograming(5, p_price, trend, date)
-    e_ta = dp.expectReturn('2017-09-27', '2017-10-17')
-    print(e_ta)
+    dp.main()
