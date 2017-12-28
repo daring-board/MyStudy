@@ -76,7 +76,7 @@ if __name__=='__main__':
                 if item[1] == 1:
                     price -= num * stock_dict[stock][d]
                     stocks[stock] += num
-                    tax +=  0.002 * num * stock_dict[stock][d]
+                    tax +=  0.0002 * num * stock_dict[stock][d]
 #                if item[1] == -1 and stocks[stock] - num > 0:
                 '''
                 トレンドが下落ならば、売り
@@ -84,7 +84,7 @@ if __name__=='__main__':
                 if item[1] == -1:
                     price += num * stock_dict[stock][d]
                     stocks[stock] -= num
-                    tax +=  0.002 * num * stock_dict[stock][d]
+                    tax +=  0.0002 * num * stock_dict[stock][d]
             if count % int(noday[:-1]) == int(noday[:-1])-1:
                 for stock in c:
                     price += stocks[stock] * stock_dict[stock][d]
