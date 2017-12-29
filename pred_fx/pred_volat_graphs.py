@@ -75,7 +75,6 @@ class PredVolatGraphs():
                         row_idx = end+idx
                         date = s_val['ds'][row_idx]
                         f_idx = forecast[forecast['ds'] == date].index[0]
-#                        print('%s, %s'%(forecast['ds'][f_idx], s_val['ds'][row_idx]))
                         line = '%s, %f, %f'%(s_val['ds'][row_idx], s_val['y'][row_idx], forecast['yhat'][f_idx])
                         line += ', %f, (%f_%f)'%( abs(s_val['y'][row_idx]-forecast['yhat'][f_idx]), forecast['yhat_lower'][f_idx], forecast['yhat_upper'][f_idx])
                         line += ', %f\n'%forecast['trend'][f_idx]
@@ -94,7 +93,10 @@ if __name__=='__main__':
     path = './data/Close/'
     stocks = getStocks(path)
     pvg = PredVolatGraphs(path)
-    p = Pool(4)
-    p.map_async(pvg.main, stocks).get(999999)
-    p.close()
+    if len(sys.argv) == 2:
+        pvg.main(sys.argv[1])
+    else:
+        p = Pool(4)
+        p.map_async(pvg.main, stocks).get(999999)
+        p.close()
 #    for stock in stocks: pvg.main(stock)
