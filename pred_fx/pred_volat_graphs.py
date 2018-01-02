@@ -79,6 +79,18 @@ class PredVolatGraphs():
                         line += ', %f, (%f_%f)'%( abs(s_val['y'][row_idx]-forecast['yhat'][f_idx]), forecast['yhat_lower'][f_idx], forecast['yhat_upper'][f_idx])
                         line += ', %f\n'%forecast['trend'][f_idx]
                         f.write(line)
+                    d_term = {5: 23, 10: 11, 20: 5}
+                    print((span*self.__pred_num)/pred_date)
+                    if (span*self.__pred_num)/pred_date == d_term[pred_date]:
+                        row_idx = end+pred_date
+                        date = s_val['ds'][row_idx]
+                        start = forecast[forecast['ds'] == date].index[0]+1
+                        for idx in range(start, len(forecast)):
+                            date = str(forecast['ds'][idx])[:-9]
+                            line = '%s, %s, %f'%(date, '-', forecast['yhat'][idx])
+                            line += ', %s, (%f_%f)'%( '-', forecast['yhat_lower'][idx], forecast['yhat_upper'][idx])
+                            line += ', %f\n'%forecast['trend'][idx]
+                            f.write(line)
             del forecast
             del future
             del model

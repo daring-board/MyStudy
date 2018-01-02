@@ -46,8 +46,11 @@ if __name__=='__main__':
     quandl.ApiConfig.api_key = config.get('config', 'api_key')
     reader = StockReader()
     if mode == 'append':
-       reader.createCSV('data', 1592)
-       for stock in stocks: reader.createCSV(path, stock)
-   else:
-       stock = sys.argv[3]
-       reader.createCSV(path, stock)
+        reader.appendCSV('data', 1592)
+        for stock in stocks: reader.appendCSV(path, stock)
+    elif mode == 'create':
+        reader.createCSV('data', 1592)
+        for stock in stocks: reader.createCSV(path, stock)
+    else:
+        stock = sys.argv[3]
+        reader.createCSV(path, stock)

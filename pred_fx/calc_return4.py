@@ -7,7 +7,7 @@ from stock_info import StockInfo
 class DynamicPrograming():
 
     def __init__(self, x, val, trend, date):
-        self.x = x
+        self.x = int(x/2)
         self.v = val
         '''
         トレンドが下落ならば、1とする
@@ -15,9 +15,9 @@ class DynamicPrograming():
         self.trend = {date: 1 if trend[date] < 0 else 0 for date in trend.keys()}
         self.DtoN = {date[idx]: idx for idx in range(len(date))}
         self.NtoD = date
-        self.len = len(date)
-        self.act = {self.NtoD[idx]:{self.NtoD[idy]:[] for idy in range(idx+1, self.len)} for idx in range(self.len)}
-        self.opt = {self.NtoD[idx]:{self.NtoD[idy]: 0 for idy in range(idx+1, self.len)} for idx in range(self.len)}
+        self.len = x
+        self.act = {self.NtoD[idx]:{self.NtoD[idy]:[] for idy in range(idx+1, idx+self.len if len(date)>idx+self.len else len(date))} for idx in range(len(date))}
+        self.opt = {self.NtoD[idx]:{self.NtoD[idy]: 0 for idy in range(idx+1, idx+self.len if len(date)>idx+self.len else len(date))} for idx in range(len(date))}
 
     '''
     :buy    : date(string)
@@ -39,23 +39,23 @@ class DynamicPrograming():
 
     def main(self):
         today = self.NtoD[0]
-        for idy in range(self.DtoN[today]+1, self.len):
+        for idy in range(self.DtoN[today]+1, self.DtoN[today]+self.len):
             alf = self.NtoD[idy]
             val = self.expectReturn(today, alf)
             if val > 0:
                 self.opt[today][alf] = val
                 self.act[today][alf].append((today, alf))
-        for idx in range(1, self.len-1):
-#        for idx in range(1, 3):
+        for idx in range(1, len(self.NtoD)):
             today = self.NtoD[idx]
             yesterday = self.NtoD[idx-1]
             tmp, max_exp = [], 0
-            for idy in range(self.DtoN[today]+1, self.len):
+            length = self.DtoN[today]+self.len if len(self.NtoD) > self.DtoN[today]+self.len else len(self.NtoD)
+            for idy in range(self.DtoN[today]+1, length):
                 if self.NtoD[idy] not in self.opt[yesterday]: continue
                 if max_exp < self.opt[yesterday][self.NtoD[idy]]:
                     max_exp = self.opt[yesterday][self.NtoD[idy]]
                     tmp = self.act[yesterday][self.NtoD[idy]]
-            for idy in range(self.DtoN[today]+1, self.len):
+            for idy in range(self.DtoN[today]+1, length):
                 alf = self.NtoD[idy]
                 if alf not in self.opt[yesterday]: continue
                 val = max_exp + self.expectReturn(today, alf) + self.commit(yesterday, today, alf)
@@ -64,7 +64,7 @@ class DynamicPrograming():
                     self.opt[today][alf] = val
                     self.act[today][alf].append((today, alf))
                 else:
-                    self.opt[today][alf] = self.opt[yesterday][alf]
+                    self.opt[today][alf] = self.opt[yesterday][alf] + self.commit(yesterday, today, alf)
         # with open('test.csv', 'w') as f:
         #     f.write('No,')
         #     for idx in range(1, self.len): f.write('%s,'%self.NtoD[idx])
@@ -113,6 +113,8 @@ if __name__=='__main__':
         dp = DynamicPrograming(int(noday[:-1]), p_price, trend, date)
         dp.main()
         act = dp.act[date[len(date)-2]][date[len(date)-1]]
+        if len(act) == 0: continue
+#        print(act)
         close = readClose(stock)
         count = 1
         with open('result/%s/%s_bs.csv'%(stock, noday), 'w') as f:
@@ -125,8 +127,11 @@ if __name__=='__main__':
                 if item[1] != 0:
                     if item == act[-1]: num += 1
                     if buy == act[0][0]: num -= 1
-                    f.write('%d,%s,%s,%d,%f\n'%(count, buy, sell, num ,num*(close[sell]-close[buy])))
-                    price += num*(close[sell]-close[buy])
+                    if sell in close.keys() and buy in close.keys():
+                        f.write('%d,%s,%s,%d,%f\n'%(count, buy, sell, num ,num*(close[sell]-close[buy])))
+                        price += num*(close[sell]-close[buy])
+                    else:
+                        f.write('%d,%s,%s,%d,%f*\n'%(count, buy, sell, num , num*(p_price[sell]-p_price[buy])))
                     count += 1
                     num = 0
                     pre = sell = item[1]
@@ -136,9 +141,12 @@ if __name__=='__main__':
             count, price = 1, 0
             for item in act:
                 if item[1] != 0:
-                    buy = item[0]
-                    f.write('%d,%s,%s,%f\n'%(count, buy, item[1], close[item[1]]-close[buy]))
-                    price += close[item[1]]-close[buy]
+                    buy, sell = item[0], item[1]
+                    if sell in close.keys() and buy in close.keys():
+                        f.write('%d,%s,%s,%d,%f\n'%(count, buy, sell, num ,close[sell]-close[buy]))
+                        price += close[sell]-close[buy]
+                    else:
+                        f.write('%d,%s,%s,%d,%f*\n'%(count, buy, sell, num , p_price[sell]-p_price[buy]))
                     count += 1
             f.write('%f\n'%price)
             f.write(str(act)+'\n')
