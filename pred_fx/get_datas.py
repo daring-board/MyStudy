@@ -16,7 +16,6 @@ class StockReader():
                 'y': data['Close']
             })
         df.index = range(1, int(rows)+1)
-        print(df)
         datas = pd.read_csv('%s/%s.csv'%(path, code))
         df2 = pd.DataFrame({
                 'ds': datas['ds'],
