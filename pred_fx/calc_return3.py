@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import statistics as stats
 from calc_dist import CalcDist
 from stock_info import StockInfo
 
@@ -16,8 +17,9 @@ def readDatas(stock, noday):
     date = [line.split(',')[0] for line in open(path, 'r')][-60:]
     return d, date
 
-def readClose(stock):
+def readClose(stock, flag=False):
     path = './data/Close/%s.csv'%stock
+    if flag: path = './data/1592.csv'
     datas = [line.strip().split(',') for line in open(path, 'r', encoding='utf-8')][1:]
     dic = {row[1]: float(row[2]) for row in datas}
     return dic
@@ -46,7 +48,8 @@ if __name__=='__main__':
     cd = CalcDist(noday)
     clust = cd.main()
     c_set = clust[noday]
-    whole = start = 100000
+    # whole = start = 100000
+    whole = start = 1
     all_tax = 0
     with open(out_path, 'w') as f: f.write('■PairTrade Result\n')
     for c in c_set:
@@ -56,7 +59,11 @@ if __name__=='__main__':
         tax = 0
         if len(c) < 4: continue
         with open(out_path, 'a') as f: f.write('Cluster: %s\n'%str(c))
-        for stock in c: ret, date = readDatas(stock, noday)
+        pred_dict = {}
+        for stock in c:
+            ret, date = readDatas(stock, noday)
+            pred_dict[stock] = {date[idx]: float(ret[idx]) for idx in range(len(ret))}
+        mean = 1#stats.mean(readClose('dummy', True).values())
         stock_dict = {stock: readClose(stock) for stock in c}
         stocks = {stock: 0 for stock in c}
         count = 0
@@ -74,20 +81,37 @@ if __name__=='__main__':
                 '''
 #                if item[1] == 1 and price - num * stock_dict[stock][d] > 0:
                 if item[1] == 1:
-                    price -= num * stock_dict[stock][d]
+                    #if d in stock_dict[stock].keys():
+                    if False:
+                        price -= num * stock_dict[stock][d]
+                        tax +=  0.0002 * num * stock_dict[stock][d]
+                    else:
+                        price -= num * mean * pred_dict[stock][d]
+                        tax +=  0.0002 * num * mean * pred_dict[stock][d]
                     stocks[stock] += num
-                    tax +=  0.0002 * num * stock_dict[stock][d]
 #                if item[1] == -1 and stocks[stock] - num > 0:
                 '''
                 トレンドが下落ならば、売り
                 '''
                 if item[1] == -1:
-                    price += num * stock_dict[stock][d]
+#                    if d in stock_dict[stock].keys():
+                    if False:
+                        price += num * stock_dict[stock][d]
+                        tax +=  0.0002 * num * stock_dict[stock][d]
+                    else:
+                        price += num * mean * pred_dict[stock][d]
+                        tax +=  0.0002 * num * mean * pred_dict[stock][d]
                     stocks[stock] -= num
-                    tax +=  0.0002 * num * stock_dict[stock][d]
+            '''
+            損益を確定させる
+            '''
             if count % int(noday[:-1]) == int(noday[:-1])-1:
                 for stock in c:
-                    price += stocks[stock] * stock_dict[stock][d]
+#                    if d in stock_dict[stock].keys():
+                    if False:
+                        price += num * stock_dict[stock][d]
+                    else:
+                        price += num * mean * pred_dict[stock][d]
                     stocks[stock] = 0
                 whole += price
                 all_tax += tax
