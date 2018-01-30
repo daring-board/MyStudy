@@ -17,12 +17,12 @@ class ReinforcementLearning:
         self._close = train_data
         self._pred = test_data
         self._portfolios = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
-        self._alp = 0.6     # Learning rate
-        self._gam = 0.8     # Discount rate
+        self._alp = 0.8     # Learning rate
+        self._gam = 0.7     # Discount rate
         self._span = 21     # Spans for standerd devision
         self._div = 0.5     # State divide 状態の分割単位：標準偏差の0.5倍分割
         self._tax = 0.002    # 手数料0.002%
-        self._myu = 1.5     # リスク調整係数
+        self._myu = 1.0     # リスク調整係数
         ''' Init'''
         self._states = {0: (0, 0)}
         self._q = {0: {1: 0, 0: 0, -1: 0, 2: 0}}       # Q-Table
