@@ -9,3 +9,9 @@ def readClose(stock, start=0, end=360):
     datas = [line.strip().split(',') for line in open(path, 'r', encoding='utf-8')][start+1:end+1]
     dic = {row[1]: float(row[2]) for row in datas}
     return dic
+
+def readDatas(stock, noday, start=0, end=120):
+    path = './result/%s/result_%s.csv'%(stock, noday)
+    d = [line.split(',') for line in open(path, 'r')][start+1:end+1]
+    dic = {row[0]: float(row[2]) for row in d}
+    return dic
