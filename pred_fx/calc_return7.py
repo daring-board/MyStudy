@@ -35,12 +35,11 @@ class ReinforcementLearning:
 
     def _eps_greedy(self, state_id):
         state = self._states[state_id]
-        while True:
-            action = random.choice([-1, 0, 1])
-            if random.random() > 0.001:
-                action = max(self._q[state_id], key=self._q[state_id].get)
-            if not (state[1] == 0 and action == -1):
-                break
+        action = random.choice([-1, 0, 1])
+        if random.random() > 0.001:
+            action = max(self._q[state_id], key=self._q[state_id].get)
+        # if action == 1 and state[1] >= 30:
+        #     action = 0
         return action
 
     def _get_start_pos(self, date_list, date):
@@ -57,30 +56,31 @@ class ReinforcementLearning:
         date_list = list(self._close.keys())+list(self._pred.keys())
         pos_today = self._get_start_pos(date_list, date)
         prev_20 = np.array([prices[d] for d in date_list[pos_today-self._span: pos_today-1]])
+        mean = np.mean(prev_20)
         std = np.std(prev_20)
-        return std
+        return std, mean
 
     def _exprimental(self, date, state_id, action):
         date_list = list(self._close.keys())+list(self._pred.keys())
         pos_today = self._get_start_pos(date_list, date)
         p_t = self._p[date]
         stock = self._states[state_id][1]
-        risk = self._calc_risk(date)
-        risk = 1 if risk == 0 else risk
+        std, mean = self._calc_risk(date)
+        std = 1 if std == 0 else std
         if action == 0:
             ''' hold'''
-            p_t1 = p_t
+            p_t1 = p_t + (stock * self._close[date])/std
         elif action == 1:
             ''' buy'''
             stock += 1
-            p_t1 = p_t + (stock * self._close[date])/risk - (stock * self._tax)
+            p_t1 = (p_t - self._close[date]) + (stock * self._close[date])/std
         elif action == -1:
             ''' commit'''
-            p_t1 = p_t + stock * self._close[date] - (stock * self._tax)
+            p_t1 = p_t + stock * self._close[date]
             stock = 0
         self._p[date_list[pos_today+1]] = p_t1
         reward = p_t1 / p_t - 1 if p_t != 0 else 0
-        risk = int(self._close[date]/risk)
+        risk = abs(int((self._close[date]-mean)/(self._div*std)))
         next_state = (risk, stock)
         idx = len(self._states)
         if next_state not in self._states.values():
@@ -100,7 +100,7 @@ class ReinforcementLearning:
                              }
 
     def training(self):
-        for i in range(100):
+        for i in range(700):
             current = 0 # current state id
             self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
             ''' Episorde start '''
@@ -116,8 +116,8 @@ class ReinforcementLearning:
                 ''' Plannning '''
                 current = next_state
             print('episorde: %d, Q-table size: %d'%(i, len(self._q)))
-        #for key in self._q.keys(): print('%d: %s'%(key, str(self._q[key])))
-        for key in self._states.keys(): print('%d: %s'%(key, str(self._states[key])))
+            #for key in self._q.keys(): print('%d: %s'%(key, str(self._q[key])))
+        #for key in self._states.keys(): print('%d: %s'%(key, str(self._states[key])))
 
     def predict(self):
         train_list = list(self._close.keys())
@@ -127,8 +127,8 @@ class ReinforcementLearning:
         self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
         ''' Episorde start '''
         for date in date_list:
-            risk = self._calc_risk(date)
-            risk = int(self._pred[date]/risk)
+            std, mean = self._calc_risk(date)
+            risk = abs(int((self._pred[date]-mean)/(self._div*std)))
             next_state = (risk, stock)
             state_id = 0
             # リスクの値のみ一致する状態
@@ -166,7 +166,6 @@ class ReinforcementLearning:
     def load_Qtable(self):
         with open('q-table.pickle', 'rb') as f:
             self._qs = pickle.load(f)
-
 
 if __name__=='__main__':
     train_data = common.readClose('7203', 0, 300)
