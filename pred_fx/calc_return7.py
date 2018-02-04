@@ -26,24 +26,23 @@ class ReinforcementLearning:
         self._f = 0.9           # 投資比率
         self._init = 10000     # 初期投資
         ''' Init'''
+        self._actions = [-1, 0, 1, 3, 5]
         self._states = {0: (0, 0)}
-        self._q = {0: {1: 0, 0: 0, -1: 0}}       # Q-Table
-        self._model = {0: {
-                         1: {'reward': 0, 'state': 0},
-                         0: {'reward': 0, 'state': 0},
-                        -1: {'reward': 0, 'state': 0},
-                      }}
+        self._q = {0: {act: 0 for act in self._actions}}       # Q-Table
+        self._model = {0: {act: {'reward': 0, 'state': 0} for act in self._actions}}
 
     def _eps_greedy(self, state_id, date):
         date_list = list(self._close.keys())+list(self._pred.keys())
         pos_today = self._get_start_pos(date_list, date)
         yesterday = date_list[pos_today-1]
         state = self._states[state_id]
-        action = random.choice([-1, 0, 1])
+        action = random.choice(self._actions)
         if random.random() > 0.001:
             action = max(self._q[state_id], key=self._q[state_id].get)
-        if action == 1 and state[1] >= 10:
-            action = random.choice([-1, 0])
+        if action >= 1 and state[1] >= 15:
+            action = random.choice(self._actions[:2])
+        if action == -1 and state[1] == 0:
+            action = 0
         return action
 
     def _get_start_pos(self, date_list, date):
@@ -75,13 +74,13 @@ class ReinforcementLearning:
         if action == 0:
             ''' hold'''
             p_t1 = p_t + (stock * self._close[date]) / risk
-        elif action == 1:
+        elif action >= 1:
             ''' buy'''
-            stock += 1
-            p_t1 = (p_t - self._close[date]) + (stock * self._close[date]) / risk
+            stock += action
+            p_t1 = (p_t - self._close[date]) + ((stock - self._tax) * self._close[date]) / risk
         elif action == -1:
             ''' commit'''
-            p_t1 = p_t + stock * self._close[date]
+            p_t1 = p_t + (stock - self._tax) * self._close[date]
             stock = 0
         self._p[date_list[pos_today+1]] = p_t1
         reward = p_t1 / p_t - 1 if p_t != 0 else 0
@@ -96,15 +95,11 @@ class ReinforcementLearning:
 
     def _is_exist_state(self, state_id):
         if state_id in self._q: return
-        self._q[state_id] = {1: 0, 0: 0, -1: 0}
-        self._model[state_id] = {
-                                 1: {'reward': 0, 'state': 0},
-                                 0: {'reward': 0, 'state': 0},
-                                -1: {'reward': 0, 'state': 0},
-                             }
+        self._q[state_id] = {act: 0 for act in self._actions}
+        self._model[state_id] = {act: {'reward': 0, 'state': 0} for act in self._actions}
 
-    def training(self):
-        for i in range(8000):
+    def training(self, num):
+        for i in range(num):
             current = 0 # current state id
             self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
             self._p[list(self._close.keys())[self._span]] = self._init
@@ -118,18 +113,19 @@ class ReinforcementLearning:
                 self._q[current][action] += self._alp*(np.log(1+reward*self._f)+self._gam*max_q-self._q[current][action])
                 ''' Update Model '''
                 self._model[current][action] = {'reward': reward, 'state': next_state}
-                ''' Plannning '''
                 current = next_state
             print('episorde: %d, Q-table size: %d'%(i, len(self._q)))
-        for key in self._q.keys(): print('%d %s: %s'%(key, str(self._states[key]), str(self._q[key])))
+        with open('q_table.txt', 'w') as f:
+            for key in self._q.keys(): f.write('%d %s: %s\n'%(key, str(self._states[key]), str(self._q[key])))
 
     def predict(self):
         train_list = list(self._close.keys())
         date_list = list(self._pred.keys())
-        profit = 0
+        profit, tmp = 0, 0
         stock = 0
         self._p = {date: 0 for date in (train_list+date_list)}
         self._p[date_list[0]] = self._init
+        f = open('profit.txt', 'w')
         ''' Episorde start '''
         for date in date_list:
             std, mean = self._calc_stats(date)
@@ -151,35 +147,56 @@ class ReinforcementLearning:
                     action = 0
                 else:
                     action = 1
-            if action == 1:
+            if action >= 1:
                 ''' buy'''
-                stock += 1
-                profit -= self._pred[date]
+                stock += action
+                profit -= action * self._pred[date]
             elif action == -1:
                 ''' commit(sell all stock)'''
-                profit += stock*self._pred[date]
+                profit += stock * self._pred[date]
                 stock = 0
             else:
                 ''' hold'''
-                reward = 0
+                profit += 0
+            print('SR: %f'%((profit-tmp)/std))
             print('state: %s'%str(next_state))
             print('%s: action: %d: %s'%(date, action, self._q[state_id]))
             print('%s: profit: %f'%(date, profit))
+            f.write('SR: %f\n'%((profit-tmp)/std))
+            f.write('state: %s\n'%str(next_state))
+            f.write('%s: action: %d: %s\n'%(date, action, self._q[state_id]))
+            f.write('%s: profit: %f\n'%(date, profit))
+            tmp = profit
+        f.close()
 
     def save_Qtable(self):
         with open('q-table.pickle', 'wb') as f:
             pickle.dump(self._q, f)
+        with open('states.pickle', 'wb') as f:
+            pickle.dump(self._states, f)
 
     def load_Qtable(self):
         with open('q-table.pickle', 'rb') as f:
-            self._qs = pickle.load(f)
+            self._q = pickle.load(f)
+        with open('states.pickle', 'rb') as f:
+            self._states = pickle.load(f)
 
 if __name__=='__main__':
+    if len(sys.argv) != 3:
+        ''' Episorde'''
+        print('エピソードの繰り返し回数を指定してください')
+        print('実行モードを指定してください')
+        print('python calc_return7.py [number of episorde]　[mode of execute]')
+        sys.exit()
+    num = int(sys.argv[1])   # Number of episorde
     train_data = common.readClose('7203', 0, 300)
     pred_data = common.readClose('7203', 300, 360)
     # train_data = common.readDatas('7203', '5d', 0, 120)
     # pred_data = common.readDatas('7203', '5d', 120, 170)
     rl = ReinforcementLearning(train_data, pred_data)
-    rl.training()
-    # rl.save_Qtable()
+    if sys.argv[2] == 'train':
+        rl.training(num)
+        rl.save_Qtable()
+    else:
+        rl.load_Qtable()
     rl.predict()
