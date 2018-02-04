@@ -3,10 +3,13 @@
 ## Theoretical document
 https://scrapbox.io/mahotox101500-60434823/Prediction_for_Stock_Price
 
-## Usage
+## プログラム1
+ペアトレードによる売買最適化システム
+
+### Usage
 py calc_return3.py 5d
 
-## Classis
+### Classis
 
 1. Class PredVolatGraphs  
   Predict stock price volatility graphs.
@@ -15,9 +18,9 @@ py calc_return3.py 5d
 2. Class CalcDist  
   Clustering Stocks.
 
-## システム考察
+### システム考察
 
-### 100銘柄を対象に解析を行った場合のハイパーパラメタについて
+#### 100銘柄を対象に解析を行った場合のハイパーパラメタについて
 - 株価の予測値を算出するためのハイパーパラメータの設定は、以下のように取るのがよさそう。
 >- 変化点の個数50  
 >- スケール0.1  
@@ -35,3 +38,26 @@ py calc_return3.py 5d
 
 - 株価の予測値によるグラフに対して
 >- グラフに対する信頼区間を決定するepsilonに対する係数は小さい方がマイナスになりにくいが、利益も出にくい。(より確実性を求めるため、単純に取引回数が減る)
+
+## プログラム2
+強化学習による売買システム
+
+### Usage
+> ex: python calc_return7.py 8000 7203 train  
+> usage: python calc_return7.py [Loop] [stock] [train or pred]
+
+### 基本概念
+強化学習(Q-learning)を適用する。  
+状態・行動・報酬について
+> * 状態
+>> 状態はリスクと保有株式数の組で(risk, stock)としてあらわす。
+>> リスクは、前日の株価(終値)から前日までの20日間の平均株価(終値)を
+>> 同期間の標準偏差で割った値とする。
+> * 行動
+>> 行動は『買い』・『売り』・『様子見』と分類する。
+>> 更に、『買い』には、『大・中・小』を取れるようにする。
+>> 買い：大・中・小 = 5・3・1
+>> 売り：-1、様子見：0
+> * 報酬
+>> 複利型強化学習と呼ばれる手法を用いる。
+>> https://www.jstage.jst.go.jp/article/tjsai/26/2/26_2_330/_pdf

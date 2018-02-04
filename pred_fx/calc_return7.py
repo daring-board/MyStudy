@@ -24,7 +24,7 @@ class ReinforcementLearning:
         self._div = 0.5         # State divide 状態の分割単位：標準偏差の0.5倍分割
         self._tax = 0.002       # 手数料0.002%
         self._f = 0.9           # 投資比率
-        self._init = 10000     # 初期投資
+        self._init = 100000     # 初期投資
         ''' Init'''
         self._actions = [-1, 0, 1, 3, 5]
         self._states = {0: (0, 0)}
@@ -121,7 +121,7 @@ class ReinforcementLearning:
     def predict(self):
         train_list = list(self._close.keys())
         date_list = list(self._pred.keys())
-        profit, tmp = 0, 0
+        profit = np.array([0 for idx in range(self._span)])
         stock = 0
         self._p = {date: 0 for date in (train_list+date_list)}
         self._p[date_list[0]] = self._init
@@ -150,53 +150,56 @@ class ReinforcementLearning:
             if action >= 1:
                 ''' buy'''
                 stock += action
-                profit -= action * self._pred[date]
+                profit = np.roll(profit, -1)
+                profit[-1] = profit[-2] - action * self._pred[date]
             elif action == -1:
                 ''' commit(sell all stock)'''
-                profit += stock * self._pred[date]
+                profit = np.roll(profit, -1)
+                profit[-1] = profit[-2] + stock * self._pred[date]
                 stock = 0
             else:
                 ''' hold'''
-                profit += 0
-            print('SR: %f'%((profit-tmp)/std))
+                profit[-1] = profit[-2]
+            sharp_ratio = np.mean(profit) / np.std(profit) if np.std(profit) != 0 else 0
+            print('SR: %f'%sharp_ratio)
             print('state: %s'%str(next_state))
             print('%s: action: %d: %s'%(date, action, self._q[state_id]))
-            print('%s: profit: %f'%(date, profit))
-            f.write('SR: %f\n'%((profit-tmp)/std))
+            print('%s: profit: %f'%(date, profit[-1]))
+            f.write('SR: %f\n'%sharp_ratio)
             f.write('state: %s\n'%str(next_state))
             f.write('%s: action: %d: %s\n'%(date, action, self._q[state_id]))
-            f.write('%s: profit: %f\n'%(date, profit))
-            tmp = profit
+            f.write('%s: profit: %f\n'%(date, profit[-1]))
         f.close()
 
-    def save_Qtable(self):
-        with open('q-table.pickle', 'wb') as f:
+    def save_Qtable(self, ticker_symbol):
+        with open('models/q-table_%s.pickle'%ticker_symbol, 'wb') as f:
             pickle.dump(self._q, f)
-        with open('states.pickle', 'wb') as f:
+        with open('models/states_%s.pickle'%ticker_symbol, 'wb') as f:
             pickle.dump(self._states, f)
 
-    def load_Qtable(self):
-        with open('q-table.pickle', 'rb') as f:
+    def load_Qtable(self, ticker_symbol):
+        with open('models/q-table_%s.pickle'%ticker_symbol, 'rb') as f:
             self._q = pickle.load(f)
-        with open('states.pickle', 'rb') as f:
+        with open('models/states_%s.pickle'%ticker_symbol, 'rb') as f:
             self._states = pickle.load(f)
 
 if __name__=='__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         ''' Episorde'''
         print('エピソードの繰り返し回数を指定してください')
+        print('銘柄コードを指定してください')
         print('実行モードを指定してください')
-        print('python calc_return7.py [number of episorde]　[mode of execute]')
+        print('python calc_return7.py [number of episorde] [ticker_symbol] [mode of execute]')
         sys.exit()
     num = int(sys.argv[1])   # Number of episorde
-    train_data = common.readClose('7203', 0, 300)
-    pred_data = common.readClose('7203', 300, 360)
-    # train_data = common.readDatas('7203', '5d', 0, 120)
-    # pred_data = common.readDatas('7203', '5d', 120, 170)
+    ticker_symbol = sys.argv[2]
+    mode = sys.argv[3]
+    train_data = common.readClose(ticker_symbol, 0, 300)
+    pred_data = common.readClose(ticker_symbol, 300, 360)
     rl = ReinforcementLearning(train_data, pred_data)
-    if sys.argv[2] == 'train':
+    if mode == 'train':
         rl.training(num)
-        rl.save_Qtable()
+        rl.save_Qtable(ticker_symbol)
     else:
-        rl.load_Qtable()
+        rl.load_Qtable(ticker_symbol)
     rl.predict()
