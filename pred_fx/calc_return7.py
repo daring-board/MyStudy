@@ -31,13 +31,14 @@ class ReinforcementLearning:
         self._q = {0: {act: 0 for act in self._actions}}       # Q-Table
         self._model = {0: {act: {'reward': 0, 'state': 0} for act in self._actions}}
 
-    def _eps_greedy(self, state_id, date):
+    def _eps_greedy(self, state_id, date, counter=1000):
+        counter = 1000 if counter > 1000 else counter
         date_list = list(self._close.keys())+list(self._pred.keys())
         pos_today = self._get_start_pos(date_list, date)
         yesterday = date_list[pos_today-1]
         state = self._states[state_id]
         action = random.choice(self._actions)
-        if random.random() > 0.001:
+        if random.random() > 1 / counter:
             action = max(self._q[state_id], key=self._q[state_id].get)
         if action >= 1 and state[1] >= 15:
             action = random.choice(self._actions[:2])
@@ -99,13 +100,13 @@ class ReinforcementLearning:
         self._model[state_id] = {act: {'reward': 0, 'state': 0} for act in self._actions}
 
     def training(self, num):
-        for i in range(num):
+        for i in range(1, num+1):
             current = 0 # current state id
             self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
             self._p[list(self._close.keys())[self._span]] = self._init
             ''' Episorde start '''
             for date in list(self._close.keys())[self._span:]:
-                action = self._eps_greedy(current, date)
+                action = self._eps_greedy(current, date, i)
                 reward, next_state = self._exprimental(date, current, action)
                 self._is_exist_state(next_state)
                 ''' Direct ReinforcementLearning '''
@@ -159,6 +160,7 @@ class ReinforcementLearning:
                 stock = 0
             else:
                 ''' hold'''
+                profit = np.roll(profit, -1)
                 profit[-1] = profit[-2]
             sharp_ratio = np.mean(profit) / np.std(profit) if np.std(profit) != 0 else 0
             print('SR: %f'%sharp_ratio)
