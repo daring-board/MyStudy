@@ -4,6 +4,7 @@ import sys
 import random
 import pickle
 import numpy as np
+from scipy import signal
 import common_functions as common
 random.seed(1)
 
@@ -19,7 +20,7 @@ class ReinforcementLearning:
         self._pred = test_data
         self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
         self._alp = 0.2         # Learning rate
-        self._gam = 0.9         # Discount rate
+        self._gam = 0.8         # Discount rate
         self._span = 21         # Spans for standerd devision
         self._div = 0.5         # State divide 状態の分割単位：標準偏差の0.5倍分割
         self._tax = 0.002       # 手数料0.002%
@@ -27,7 +28,7 @@ class ReinforcementLearning:
         self._init = 100000     # 初期投資
         ''' Init'''
         self._actions = [-1, 0, 1, 3, 5]
-        self._states = {0: (0, 0)}
+        self._states = {0: (0, 0, 0)}
         self._q = {0: {act: 0 for act in self._actions}}       # Q-Table
         self._model = {0: {act: {'reward': 0, 'state': 0} for act in self._actions}}
 
@@ -62,15 +63,17 @@ class ReinforcementLearning:
         prev_20 = np.array([prices[d] for d in date_list[pos_today-self._span: pos_today-1]])
         mean = np.mean(prev_20)
         std = np.std(prev_20)
-        return std, mean
+        trend = prev_20 - signal.detrend(prev_20)
+        trend_flag = 1 if np.diff(trend)[0] > 0 else 0
+        return std, mean, trend_flag
 
     def _exprimental(self, date, state_id, action):
         date_list = list(self._close.keys())+list(self._pred.keys())
         pos_today = self._get_start_pos(date_list, date)
         p_t = self._p[date]
         stock = self._states[state_id][1]
-        std, mean = self._calc_stats(date)
-        risk = abs(int((self._close[date_list[pos_today-1]] - mean) / (self._div * std)))
+        std, mean, trend = self._calc_stats(date)
+        risk = int((self._close[date_list[pos_today-1]] - mean) / (self._div * std))
         risk = 1 if risk == 0 else risk
         if action == 0:
             ''' hold'''
@@ -85,7 +88,7 @@ class ReinforcementLearning:
             stock = 0
         self._p[date_list[pos_today+1]] = p_t1
         reward = p_t1 / p_t - 1 if p_t != 0 else 0
-        next_state = (risk, stock)
+        next_state = (risk, stock, trend)
         idx = len(self._states)
         if next_state not in self._states.values():
             self._states[idx] = next_state
@@ -122,17 +125,17 @@ class ReinforcementLearning:
     def predict(self):
         train_list = list(self._close.keys())
         date_list = list(self._pred.keys())
-        profit = np.array([0 for idx in range(self._span)])
+        profit = np.array([0 for idx in range(self._span+1)])
         stock = 0
         self._p = {date: 0 for date in (train_list+date_list)}
         self._p[date_list[0]] = self._init
         f = open('profit.txt', 'w')
         ''' Episorde start '''
         for date in date_list:
-            std, mean = self._calc_stats(date)
+            std, mean, trend = self._calc_stats(date)
             pos_today = self._get_start_pos(date_list, date)
-            risk = abs(int((self._pred[date_list[pos_today-1]]-mean)/(self._div*std)))
-            next_state = (risk, stock)
+            risk = int((self._pred[date_list[pos_today-1]]-mean)/(self._div*std))
+            next_state = (risk, stock, trend)
             state_id = 0
             # リスクの値のみ一致する状態
             for i, s in self._states.items():
@@ -162,7 +165,7 @@ class ReinforcementLearning:
                 ''' hold'''
                 profit = np.roll(profit, -1)
                 profit[-1] = profit[-2]
-            sharp_ratio = np.mean(profit) / np.std(profit) if np.std(profit) != 0 else 0
+            sharp_ratio = profit[-1] / np.std(np.diff(profit)) if np.std(profit[:-1]) != 0 else 0
             print('SR: %f'%sharp_ratio)
             print('state: %s'%str(next_state))
             print('%s: action: %d: %s'%(date, action, self._q[state_id]))
