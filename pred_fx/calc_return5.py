@@ -41,7 +41,7 @@ class Enviroment():
         self._f = 0.9           # 投資比率
         self._init = 100000     # 初期投資
         ''' Init'''
-        self._actions = [-1, 0, 1, 3, 5]
+        self._actions = [-1, 0, 1, 2, 3]
         self._states = {0: [0, 0, 0]}
         self._q = {0: {act: 0 for act in self._actions}}       # Q-Table
         self._model = {0: {act: {'reward': 0, 'state': 0} for act in self._actions}}
@@ -85,8 +85,7 @@ class Enviroment():
         mean = np.mean(prev_20)
         std = np.std(prev_20)
         trend = prev_20 - signal.detrend(prev_20)
-        trend_flag = 1 if np.diff(trend)[0] > 0 else 0
-        return std, mean, trend_flag
+        return std, mean, np.diff(trend)[0]
 
     def set_date(self, date):
         self._date = date
@@ -100,7 +99,7 @@ class Enviroment():
         p_t = self._p[self._date]
         stock = self._states[self._current][1]
         std, mean, trend = self._calc_stats()
-        risk = int((self._close[date_list[pos_today-1]] - mean) / (self._div * std))
+        risk = (self._close[date_list[pos_today-1]] - mean) / (self._div * std)
         risk = 1 if risk == 0 else risk
         if action == 0:
             ''' hold'''
@@ -159,9 +158,26 @@ if __name__=='__main__':
         current = env.reset()
         reward = 0
         for date in list(env._close.keys())[env._span:]:
-            print(current)
             state = np.array(env.get_state(current))
             state = state.astype(np.float32)
             action = agent.act_and_train(state, reward)
             env.set_date(date)
             reward, current, done, info = env.step(action)
+        print('episorde: %d'%idx)
+    agent.save('%s.model'%ticker_symbol)
+
+    date_list = list(env._close.keys())+list(env._pred.keys())
+    env.set_date(list(env._pred.keys())[0])
+    std, mean, trend = env._calc_stats()
+    pos_today = env._get_start_pos(date_list)
+    risk = int((env._pred[date_list[pos_today]]-mean)/(env._div*std))
+    next_state = (risk, 0, trend)
+    for i, s in env._states.items():
+        if s == next_state: current = i
+    for date in list(env._pred.keys()):
+        state = np.array(env.get_state(current))
+        state = state.astype(np.float32)
+        action = agent.act(state)
+        reward, current, done, info = env.step(action)
+        env.set_date(date)
+        print('%s: %f'%(date, reward))

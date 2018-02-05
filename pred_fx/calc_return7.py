@@ -125,7 +125,7 @@ class ReinforcementLearning:
     def predict(self):
         train_list = list(self._close.keys())
         date_list = list(self._pred.keys())
-        profit = np.array([0 for idx in range(self._span+1)])
+        profit = np.array([self._init for idx in range(self._span+1)])
         stock = 0
         self._p = {date: 0 for date in (train_list+date_list)}
         self._p[date_list[0]] = self._init
