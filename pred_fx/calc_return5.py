@@ -55,7 +55,7 @@ class Enviroment():
         yesterday = date_list[pos_today-1]
         state = self._states[self._current]
         action = random.choice(self._actions)
-        if action >= 1 and state[1] >= 15:
+        if action >= 1 and state[1] >= 9:
             action = random.choice(self._actions[:2])
         if action == -1 and state[1] == 0:
             action = 0
@@ -93,35 +93,38 @@ class Enviroment():
     def get_state(self, state_id):
         return self._states[state_id]
 
-    def step(self, action):
+    def step(self, action, mode):
         date_list = list(self._close.keys())+list(self._pred.keys())
+        prices = self._close if mode == 'train' else self._pred
         pos_today = self._get_start_pos(date_list)
         p_t = self._p[self._date]
         stock = self._states[self._current][1]
         std, mean, trend = self._calc_stats()
-        risk = (self._close[date_list[pos_today-1]] - mean) / (self._div * std)
+        risk = (prices[date_list[pos_today-1]] - mean) / (self._div * std)
         risk = 1 if risk == 0 else risk
         if action == 0:
             ''' hold'''
-            p_t1 = p_t + (stock * self._close[self._date]) / risk
+            p_t1 = p_t + (stock * prices[self._date]) / risk
         elif action >= 1:
             ''' buy'''
             stock += action
-            p_t1 = (p_t - self._close[self._date]) + ((stock - self._tax) * self._close[self._date]) / risk
+            p_t1 = (p_t - prices[self._date]) + ((stock - self._tax) * prices[self._date]) / risk
         elif action == -1:
             ''' commit'''
-            p_t1 = p_t + (stock - self._tax) * self._close[self._date]
+            p_t1 = p_t + (stock - self._tax) * prices[self._date]
             stock = 0
         self._p[date_list[pos_today+1]] = p_t1
         reward = p_t1 / p_t - 1 if p_t != 0 else 0
         next_state = [risk, stock, trend]
         idx = len(self._states)
+        print(next_state)
         if next_state not in self._states.values():
             self._states[idx] = next_state
         else:
             for i, s in self._states.items():
-                if s == next_state: idx = i
-        return reward, idx, True if self._date == list(self._close.keys())[-1] else False, ''
+                if s == next_state:
+                    idx = i
+        return reward, idx, True if self._date == list(prices.keys())[-1] else False, ''
 
 if __name__=='__main__':
     if len(sys.argv) != 4:
@@ -154,30 +157,48 @@ if __name__=='__main__':
     q_func, optimizer, replay_buffer, gamma, explorer,
     replay_start_size=500)
 
-    for idx in range(1, num+1):
-        current = env.reset()
-        reward = 0
-        for date in list(env._close.keys())[env._span:]:
-            state = np.array(env.get_state(current))
-            state = state.astype(np.float32)
-            action = agent.act_and_train(state, reward)
-            env.set_date(date)
-            reward, current, done, info = env.step(action)
-        print('episorde: %d'%idx)
-    agent.save('%s.model'%ticker_symbol)
+    if mode == 'train':
+        for idx in range(1, num+1):
+            current = env.reset()
+            reward = 0
+            for date in list(env._close.keys())[env._span:]:
+                state = np.array(env.get_state(current))
+                state = state.astype(np.float32)
+                action = agent.act_and_train(state, reward)
+                env.set_date(date)
+                reward, current, done, info = env.step(action, 'train')
+            print('episorde: %d'%idx)
+            print(agent.get_statistics())
+        agent.save('%s.model'%ticker_symbol)
 
+    print('Test start')
+    if mode != 'train':
+        agent.load('%s.model'%ticker_symbol)
+    current = 0
     date_list = list(env._close.keys())+list(env._pred.keys())
-    env.set_date(list(env._pred.keys())[0])
+    env.set_date(list(env._pred.keys())[1])
     std, mean, trend = env._calc_stats()
     pos_today = env._get_start_pos(date_list)
-    risk = int((env._pred[date_list[pos_today]]-mean)/(env._div*std))
+    risk = int((env._pred[date_list[pos_today-1]]-mean)/(env._div*std))
     next_state = (risk, 0, trend)
     for i, s in env._states.items():
         if s == next_state: current = i
-    for date in list(env._pred.keys()):
+    for date in list(env._pred.keys())[1:]:
         state = np.array(env.get_state(current))
         state = state.astype(np.float32)
         action = agent.act(state)
-        reward, current, done, info = env.step(action)
+        reward, current, done, info = env.step(action, 'pred')
         env.set_date(date)
+        print(state)
         print('%s: %f'%(date, reward))
+        act = env._actions[action]
+        if act >= 1:
+            ''' buy'''
+            print(-act * pred_data[date])
+        elif act == -1:
+            ''' commit(sell all stock)'''
+            print(state[1] * pred_data[date])
+            stock = 0
+        else:
+            ''' hold'''
+            print('0')
