@@ -117,7 +117,6 @@ class Enviroment():
         reward = p_t1 / p_t - 1 if p_t != 0 else 0
         next_state = [risk, stock, trend]
         idx = len(self._states)
-        print(next_state)
         if next_state not in self._states.values():
             self._states[idx] = next_state
         else:
@@ -150,7 +149,7 @@ if __name__=='__main__':
     optimizer.setup(q_func) #設計したq関数の最適化にAdamを使う
     gamma = 0.9
     explorer = chainerrl.explorers.ConstantEpsilonGreedy(
-        epsilon=0.3, random_action_func=env.sample)
+        epsilon=0.2, random_action_func=env.sample)
     replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity = 10**6)
 
     agent = chainerrl.agents.DoubleDQN(
@@ -169,7 +168,7 @@ if __name__=='__main__':
                 reward, current, done, info = env.step(action, 'train')
             print('episorde: %d'%idx)
             print(agent.get_statistics())
-        agent.save('%s.model'%ticker_symbol)
+        agent.save('%s_model'%ticker_symbol)
 
     print('Test start')
     if mode != 'train':
