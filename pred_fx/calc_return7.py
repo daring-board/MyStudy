@@ -41,7 +41,7 @@ class ReinforcementLearning:
         action = random.choice(self._actions)
         if random.random() > 1 / counter:
             action = max(self._q[state_id], key=self._q[state_id].get)
-        if action >= 1 and state[1] >= 15:
+        if action >= 1 and state[1] >= 10:
             action = random.choice(self._actions[:2])
         if action == -1 and state[1] == 0:
             action = 0
@@ -64,7 +64,7 @@ class ReinforcementLearning:
         mean = np.mean(prev_20)
         std = np.std(prev_20)
         trend = prev_20 - signal.detrend(prev_20)
-        trend_flag = 1 if np.diff(trend)[0] > 0 else 0
+        trend_flag = int((np.diff(trend)[0]/10))
         return std, mean, trend_flag
 
     def _exprimental(self, date, state_id, action):
