@@ -7,7 +7,8 @@ https://scrapbox.io/mahotox101500-60434823/Prediction_for_Stock_Price
 ペアトレードによる売買最適化システム
 
 ### Usage
-py calc_return3.py 5d
+> ex: python calc_return3.py 5d
+> usage: python calc_return3.py [モデル更新期間]
 
 ### Classis
 
@@ -43,7 +44,7 @@ py calc_return3.py 5d
 強化学習による売買システム
 
 ### Usage
-> ex: python calc_return7.py 8000 7203 train  
+> ex: python calc_return7.py 30000 7203 train  
 > usage: python calc_return7.py [Loop] [stock] [train or pred]
 
 ### 基本概念
@@ -61,3 +62,13 @@ py calc_return3.py 5d
 > * 報酬
 >> 複利型強化学習と呼ばれる手法を用いる。
 >> https://www.jstage.jst.go.jp/article/tjsai/26/2/26_2_330/_pdf
+
+## プログラム3
+強化学習による売買システム(DQN: Deep Q-learning)
+
+### Usage
+> ex: python calc_return5.py 1000 7203 train  
+> usage: python calc_return5.py [Loop] [stock] [train or pred]
+
+### DQN(Deep Q-learning)について
+https://qiita.com/icoxfog417/items/242439ecd1a477ece312
