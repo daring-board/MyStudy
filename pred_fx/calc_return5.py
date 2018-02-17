@@ -9,7 +9,7 @@ from scipy import signal
 import common_functions as common
 
 '''
-Action: a in {buy(large): 5, buy(midium): 3, buy(small) 1, hold: 0, commit: -1}
+Action: a in {buy(large): 3, buy(midium): 2, buy(small) 1, hold: 0, commit: -1}
 State : (risk, stock) risk in  Rational Number, stock in Integer: risk = p_stdev, stock = number of stock
 '''
 class QFunction(chainer.Chain):
