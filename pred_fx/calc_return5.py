@@ -100,7 +100,7 @@ class Enviroment():
         p_t = self._p[self._date]
         stock = self._states[self._current][1]
         std, mean, trend = self._calc_stats()
-        risk = (prices[date_list[pos_today-1]] - mean) / (self._div * std)
+        risk = abs(prices[date_list[pos_today-1]] - mean) / (self._div * std)
         risk = 1 if risk == 0 else risk
         if action == 0:
             ''' hold'''
@@ -172,32 +172,35 @@ if __name__=='__main__':
 
     print('Test start')
     if mode != 'train':
-        agent.load('%s.model'%ticker_symbol)
-    current = 0
+        agent.load('%s_model'%ticker_symbol)
+    whole = 100000
+    stock = 0
     date_list = list(env._close.keys())+list(env._pred.keys())
     env.set_date(list(env._pred.keys())[1])
     std, mean, trend = env._calc_stats()
     pos_today = env._get_start_pos(date_list)
-    risk = int((env._pred[date_list[pos_today-1]]-mean)/(env._div*std))
+    risk = abs(env._pred[date_list[pos_today-1]]-mean)/(env._div*std)
     next_state = (risk, 0, trend)
-    for i, s in env._states.items():
-        if s == next_state: current = i
     for date in list(env._pred.keys())[1:]:
-        state = np.array(env.get_state(current))
+        env.set_date(date)
+        std, mean, trend = env._calc_stats()
+        pos_today = env._get_start_pos(date_list)
+        risk = abs(env._pred[date_list[pos_today-1]]-mean)/(env._div*std)
+        state = np.array((risk, stock, trend))
         state = state.astype(np.float32)
         action = agent.act(state)
-        reward, current, done, info = env.step(action, 'pred')
         env.set_date(date)
         print(state)
-        print('%s: %f'%(date, reward))
         act = env._actions[action]
+        print('%s: %d'%(date, act))
         if act >= 1:
             ''' buy'''
-            print(-act * pred_data[date])
+            whole -= act * pred_data[date]
+            stock += act
         elif act == -1:
             ''' commit(sell all stock)'''
-            print(state[1] * pred_data[date])
+            whole += state[1] * pred_data[date]
             stock = 0
         else:
             ''' hold'''
-            print('0')
+        print(whole)

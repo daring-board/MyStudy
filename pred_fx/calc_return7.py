@@ -21,7 +21,7 @@ class ReinforcementLearning:
         self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
         self._alp = 0.2         # Learning rate
         self._gam = 0.8         # Discount rate
-        self._span = 21         # Spans for standerd devision
+        self._span = 20         # Spans for standerd devision
         self._div = 0.5         # State divide 状態の分割単位：標準偏差の0.5倍分割
         self._tax = 0.002       # 手数料0.002%
         self._f = 0.9           # 投資比率
@@ -41,8 +41,10 @@ class ReinforcementLearning:
         action = random.choice(self._actions)
         if random.random() > 1 / counter:
             action = max(self._q[state_id], key=self._q[state_id].get)
+        # 保有証券数が上限であるか？
         if action >= 1 and state[1] >= 10:
             action = random.choice(self._actions[:2])
+        # 空売りは行わない
         if action == -1 and state[1] == 0:
             action = 0
         return action
@@ -67,13 +69,17 @@ class ReinforcementLearning:
         trend_flag = int((np.diff(trend)[0]/10))
         return std, mean, trend_flag
 
+    def _calc_risk(self, date_list, pos_today, mean, std, mode='train'):
+        prices = self._close if mode == 'train' else self._pred
+        return int(abs(prices[date_list[pos_today-1]] - mean) / (self._div * std))
+
     def _exprimental(self, date, state_id, action):
         date_list = list(self._close.keys())+list(self._pred.keys())
         pos_today = self._get_start_pos(date_list, date)
         p_t = self._p[date]
         stock = self._states[state_id][1]
         std, mean, trend = self._calc_stats(date)
-        risk = int((self._close[date_list[pos_today-1]] - mean) / (self._div * std))
+        risk = self._calc_risk(date_list, pos_today, mean, std)
         risk = 1 if risk == 0 else risk
         if action == 0:
             ''' hold'''
@@ -81,7 +87,7 @@ class ReinforcementLearning:
         elif action >= 1:
             ''' buy'''
             stock += action
-            p_t1 = (p_t - self._close[date]) + ((stock - self._tax) * self._close[date]) / risk
+            p_t1 = (p_t - action * self._close[date]) + ((stock - self._tax) * self._close[date]) / risk
         elif action == -1:
             ''' commit'''
             p_t1 = p_t + (stock - self._tax) * self._close[date]
@@ -134,7 +140,7 @@ class ReinforcementLearning:
         for date in date_list:
             std, mean, trend = self._calc_stats(date)
             pos_today = self._get_start_pos(date_list, date)
-            risk = int((self._pred[date_list[pos_today-1]]-mean)/(self._div*std))
+            risk = self._calc_risk(date_list, pos_today, mean, std, 'pred')
             next_state = (risk, stock, trend)
             state_id = 0
             # リスクの値のみ一致する状態
