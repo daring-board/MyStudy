@@ -60,7 +60,7 @@ https://scrapbox.io/mahotox101500-60434823/Prediction_for_Stock_Price
 >> 買い：大・中・小 = 5・3・1
 >> 売り：-1、様子見：0
 > * 報酬
->> 複利型強化学習と呼ばれる手法を用いる。
+>> 複利型強化学習と呼ばれる手法を用いる。　　
 >> https://www.jstage.jst.go.jp/article/tjsai/26/2/26_2_330/_pdf
 
 ## プログラム3
@@ -71,4 +71,5 @@ https://scrapbox.io/mahotox101500-60434823/Prediction_for_Stock_Price
 > usage: python calc_return5.py [Loop] [stock] [train or pred]
 
 ### DQN(Deep Q-learning)について
+
 https://qiita.com/icoxfog417/items/242439ecd1a477ece312
