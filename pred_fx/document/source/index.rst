@@ -10,8 +10,9 @@ Welcome to mystudy-docs's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   theoretical
    program
+   th1
+   th2
 
 Indices and tables
 ==================

@@ -1,13 +1,13 @@
-.. _theoretical:
+.. _th1:
 
 .. toctree::
    :maxdepth: 4
 
 
-Theoretical Document
-=========================
+ペアトレードによる売買最適化システムに対する理論
+====================================================
 
-Prediction for Stock Price
+株価予測について
 --------------------------------
 
 We use following time series forcasting model.
@@ -21,8 +21,8 @@ We use following time series forcasting model.
 | refference [ https://peerj.com/preprints/3190.pdf ]
 
 
-Distance between stocks
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+銘柄同士の距離
+--------------------------------
 
 We define the following equation which two stock is similar.
 
@@ -36,8 +36,8 @@ When we can define distance matrix.
 
 :math:`N` is set of indies for stocks.
 
-Trand
-^^^^^^^
+トレンド
+--------------------------------
 
 | For stock :math:`i, j \in N`, trand line's value is defined :math:`u_{i}, u_{j} \in R`
 | For interval :math:`I(t) = (t, t+k]`,
@@ -61,8 +61,8 @@ For all :math:`t' \in I(t)`
 * If :math:`u_{i}(t') - u_{j}(t') < 0]` then :math:`down(t') = 1`
 * otherwise :math:`down(t') = 0`
 
-Information of Stock
-^^^^^^^^^^^^^^^^^^^^^^^^^
+銘柄情報
+--------------------------------
 
 StockInfo is tuple of :math:`S_{i}(t) = (v_{i}(t), f_{i}(t), \epsilon_{i}, \delta_{i}, \{p_{i}(t)\})`
 
@@ -82,7 +82,7 @@ Pair Trade Flag is defined following conditions.
   & & \Leftrightarrow & (f_i(t) \neq f_j(t) \land f_i(t) \neq 0 \land f_j(t) \land 0) \\
   & & & \land (v_j(t+k) =v_i(t+k)) \\
 
-PairTrading
-^^^^^^^^^^^^^^^^
+ペアトレードの抽出
+--------------------------------
 
 Cluster
