@@ -168,11 +168,11 @@ if __name__=='__main__':
                 reward, current, done, info = env.step(action, 'train')
             print('episorde: %d'%idx)
             print(agent.get_statistics())
-        agent.save('%s_model'%ticker_symbol)
+        agent.save('models/%s_model'%ticker_symbol)
 
     print('Test start')
     if mode != 'train':
-        agent.load('%s_model'%ticker_symbol)
+        agent.load('models/%s_model'%ticker_symbol)
     whole = 100000
     stock = 0
     date_list = list(env._close.keys())+list(env._pred.keys())
