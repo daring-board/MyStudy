@@ -1,0 +1,131 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>強化学習における報酬の定義 &#8212; mystudy-docs  ドキュメント</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="ペアトレードによる売買最適化システムに対する理論" href="th1.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="th1.html" title="ペアトレードによる売買最適化システムに対する理論"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mystudy-docs  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound" id="th2">
+</div>
+<div class="section" id="id1">
+<h1>強化学習における報酬の定義<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="id2">
+<h2>記法<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="math notranslate">
+\[\begin{split}&amp; P_t &amp;: 時刻tにおける固定資産額 \\
+&amp; s_t &amp;: 時刻tにおける保有証券数 \\
+&amp; c_t &amp;: 時刻tにおける株式の時価(終値) \\
+&amp; \mu_t(\theta) &amp;: 時刻tにおける株価の\theta次の移動平均 \\
+&amp; \sigma_t(\theta) &amp;: 時刻tにおける株価の\theta次の移動平均に対する標準偏差 \\\end{split}\]</div>
+</div>
+<div class="section" id="id3">
+<h2>リスクと行動価値の定義<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>リスクは『前日の終値』が『前日までの移動平均』との乖離が『前日までの標準偏差』の大きさに対してどの程度かで定義する。</p>
+<div class="math notranslate">
+\[r_t = \frac{|c_t - \mu_t(\theta)|}{\sigma_t(\theta)}\]</div>
+<p>行動は <span class="math notranslate">\(hold, buy, commit\)</span> の3つであり、時刻tにおいてそれぞれの行動を取った場合の報酬を行動価値とする。</p>
+<div class="math notranslate">
+\[\begin{split}&amp; hold &amp;: P_{t+1} = P_t + s_t  c_t  r_t \\
+&amp; buy(x &gt; 0) &amp;: P_{t+1} = P_t + (s_t + x)  c_t  r_t - x  c_t \\
+&amp; commit &amp;: P_{t+1} = P_t + s_t  c_t \\\end{split}\]</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">強化学習における報酬の定義</a><ul>
+<li><a class="reference internal" href="#id2">記法</a></li>
+<li><a class="reference internal" href="#id3">リスクと行動価値の定義</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="th1.html"
+                        title="前の章へ">ペアトレードによる売買最適化システムに対する理論</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/th2.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="th1.html" title="ペアトレードによる売買最適化システムに対する理論"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mystudy-docs  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, mahotox101500@gmail.com.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0 で生成しました。
+    </div>
+  </body>
+</html>

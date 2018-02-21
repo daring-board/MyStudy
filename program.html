@@ -1,0 +1,257 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>プログラム &#8212; mystudy-docs  ドキュメント</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="Theoretical Document" href="theoretical.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="theoretical.html" title="Theoretical Document"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mystudy-docs  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound" id="programs">
+</div>
+<div class="section" id="id1">
+<h1>プログラム<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>This Document for pred_fx</p>
+<div class="section" id="id2">
+<h2>ペアトレードによる売買最適化システム<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id3">
+<h3>使い方<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>例</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">calc_return3</span><span class="o">.</span><span class="n">py</span> <span class="mi">5</span><span class="n">d</span>
+</pre></div>
+</div>
+<p>文法</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">calc_return3</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="n">モデル更新期間</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="classis">
+<h3>Classis<a class="headerlink" href="#classis" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ol class="arabic simple">
+<li>Class PredVolatGraphs</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">Predict stock price volatility graphs.</div>
+<div class="line">This class uses fbprophet.</div>
+</div>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li>Class CalcDist</li>
+</ol>
+<blockquote>
+<div><div class="line-block">
+<div class="line">Clustering Stocks.</div>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h3>システム考察<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>100銘柄を対象に解析を行った場合のハイパーパラメタについて</p>
+<ul>
+<li><p class="first">株価の予測値を算出するためのハイパーパラメータの設定は、以下のように取るのがよさそう。</p>
+<ul class="simple">
+<li>変化点の個数50</li>
+<li>スケール0.1</li>
+<li>5日に1度、予測グラフを更新</li>
+</ul>
+</li>
+<li><p class="first">ペアトレードの組を作成するためのハイパーパラメータの設定は、以下のような傾向がみられる。</p>
+<ul class="simple">
+<li>クラスタの個数は銘柄数の半分程度が目安。</li>
+<li>クラスタ数が少ない方がリターンが大きくなりやすいが、マイナスが出やすく大きい場合が多い。</li>
+<li>クラスタ数が多い場合はリターンが小さいが、マイナスは出にくくなる。</li>
+<li>クラスタ数が少ないと処理に時間がかかる。</li>
+</ul>
+</li>
+<li><p class="first">トレンド決定パラメータkと損益確定Ndまでの日数の関係</p>
+<ul class="simple">
+<li>kとNdは同じ日数である場合が最も利益が出やすい。</li>
+</ul>
+<blockquote>
+<div><div class="line-block">
+<div class="line">Ndを指定すると自動的にトレンド決定パラメータkが決まるように修正。</div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">株価の予測値によるグラフに対して</p>
+<ul class="simple">
+<li>グラフに対する信頼区間を決定するepsilonに対する係数は小さい方がマイナスになりにくいが、利益も出にくい。(より確実性を求めるため、単純に取引回数が減る)</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>強化学習による売買システム<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id6">
+<h3>使い方<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>例</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">calc_return7</span><span class="o">.</span><span class="n">py</span> <span class="mi">30000</span> <span class="mi">7203</span> <span class="n">train</span>
+</pre></div>
+</div>
+<p>文法</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">calc_return7</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="n">Loop</span><span class="p">]</span> <span class="p">[</span><span class="n">stock</span><span class="p">]</span> <span class="p">[</span><span class="n">train</span> <span class="ow">or</span> <span class="n">pred</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>基本概念<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>強化学習(Q-learning)を適用する。
+状態・行動・報酬について</p>
+<ul>
+<li><p class="first">状態</p>
+<div class="line-block">
+<div class="line">状態はリスクと保有株式数の組で(risk, stock)としてあらわす。</div>
+<div class="line">リスクは、前日の株価(終値)から前日までの20日間の平均株価(終値)を</div>
+<div class="line">同期間の標準偏差で割った値とする。</div>
+</div>
+</li>
+<li><p class="first">行動</p>
+<div class="line-block">
+<div class="line">行動は『買い』・『売り』・『様子見』と分類する。</div>
+<div class="line">更に、『買い』には、『大・中・小』を取れるようにする。</div>
+<div class="line">買い：大・中・小 = 5・3・1</div>
+<div class="line">売り：-1、様子見：0</div>
+</div>
+</li>
+<li><p class="first">報酬</p>
+<div class="line-block">
+<div class="line">複利型強化学習と呼ばれる手法を用いる。</div>
+<div class="line"><a class="reference external" href="https://www.jstage.jst.go.jp/article/tjsai/26/2/26_2_330/_pdf">https://www.jstage.jst.go.jp/article/tjsai/26/2/26_2_330/_pdf</a></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="dqn-deep-q-learning">
+<h2>強化学習による売買システム(DQN: Deep Q-learning)<a class="headerlink" href="#dqn-deep-q-learning" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id8">
+<h3>使い方<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>例</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">calc_return5</span><span class="o">.</span><span class="n">py</span> <span class="mi">1000</span> <span class="mi">7203</span> <span class="n">train</span>
+</pre></div>
+</div>
+<p>文法</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">calc_return5</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="n">Loop</span><span class="p">]</span> <span class="p">[</span><span class="n">stock</span><span class="p">]</span> <span class="p">[</span><span class="n">train</span> <span class="ow">or</span> <span class="n">pred</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>DQN(Deep Q-learning)について<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>以下を参照</p>
+<p><a class="reference external" href="https://qiita.com/icoxfog417/items/242439ecd1a477ece312">https://qiita.com/icoxfog417/items/242439ecd1a477ece312</a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">プログラム</a><ul>
+<li><a class="reference internal" href="#id2">ペアトレードによる売買最適化システム</a><ul>
+<li><a class="reference internal" href="#id3">使い方</a></li>
+<li><a class="reference internal" href="#classis">Classis</a></li>
+<li><a class="reference internal" href="#id4">システム考察</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">強化学習による売買システム</a><ul>
+<li><a class="reference internal" href="#id6">使い方</a></li>
+<li><a class="reference internal" href="#id7">基本概念</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dqn-deep-q-learning">強化学習による売買システム(DQN: Deep Q-learning)</a><ul>
+<li><a class="reference internal" href="#id8">使い方</a></li>
+<li><a class="reference internal" href="#id9">DQN(Deep Q-learning)について</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="theoretical.html"
+                        title="前の章へ">Theoretical Document</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/program.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="theoretical.html" title="Theoretical Document"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mystudy-docs  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, mahotox101500@gmail.com.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0 で生成しました。
+    </div>
+  </body>
+</html>

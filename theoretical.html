@@ -1,0 +1,190 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ペアトレードによる売買最適化システムに対する理論 &#8212; mystudy-docs  ドキュメント</title>
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="プログラム" href="program.html" />
+    <link rel="prev" title="Welcome to mystudy-docs&#39;s documentation!" href="index.html" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="program.html" title="プログラム"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to mystudy-docs&#39;s documentation!"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mystudy-docs  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound" id="theoretical">
+</div>
+<div class="section" id="id1">
+<h1>ペアトレードによる売買最適化システムに対する理論<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="id2">
+<h2>株価予測について<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>We use following time series forcasting model.</p>
+<div class="math notranslate">
+\[y(t) = g(t) + s(t) +  h(t) + \epsilon_{t}\]</div>
+<div class="line-block">
+<div class="line">Here <span class="math notranslate">\(g(t)\)</span> is the trend function.</div>
+<div class="line"><span class="math notranslate">\(s(t)\)</span> represents periodic changes( e.g.. weekly and yearly seasonality).</div>
+<div class="line"><span class="math notranslate">\(h(t)\)</span> represents the effects of holidays which occur on potentially irregular schedules orver one or more days.</div>
+<div class="line">refference [ <a class="reference external" href="https://peerj.com/preprints/3190.pdf">https://peerj.com/preprints/3190.pdf</a> ]</div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>銘柄同士の距離<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>We define the following equation which two stock is similar.</p>
+<div class="math notranslate">
+\[d_{ij} = \sum_{t \in S} | v_{i}(t) - v_{j}(t) |\]</div>
+<p>When we can define distance matrix.</p>
+<div class="math notranslate">
+\[D = (d_{ij})_{i,j \in N}\]</div>
+<p><span class="math notranslate">\(N\)</span> is set of indies for stocks.</p>
+</div>
+<div class="section" id="id4">
+<h2>トレンド<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="line-block">
+<div class="line">For stock <span class="math notranslate">\(i, j \in N\)</span>, trand line's value is defined <span class="math notranslate">\(u_{i}, u_{j} \in R\)</span></div>
+<div class="line">For interval <span class="math notranslate">\(I(t) = (t, t+k]\)</span>,</div>
+<div class="line">we define 'Upward Trand'. That satisfied following conditions.</div>
+</div>
+<div class="math notranslate">
+\[\sum_{t' \in I(t)}up(t') \ge \alpha k\]</div>
+<p>For all <span class="math notranslate">\(t' \in I(t)\)</span></p>
+<ul class="simple">
+<li>If <span class="math notranslate">\(u_{i}(t') - u_{j}(t') &gt; 0\)</span> then <span class="math notranslate">\(up(t') = 1\)</span></li>
+<li>otherwise <span class="math notranslate">\(up(t') = 0\)</span></li>
+</ul>
+<p>And we define 'Downward Trand'. That satisfied following conditions.</p>
+<div class="math notranslate">
+\[\sum_{t' \in I(t)}down(t') \le \alpha k\]</div>
+<p>For all <span class="math notranslate">\(t' \in I(t)\)</span></p>
+<ul class="simple">
+<li>If <span class="math notranslate">\(u_{i}(t') - u_{j}(t') &lt; 0]\)</span> then <span class="math notranslate">\(down(t') = 1\)</span></li>
+<li>otherwise <span class="math notranslate">\(down(t') = 0\)</span></li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>銘柄情報<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>StockInfo is tuple of <span class="math notranslate">\(S_{i}(t) = (v_{i}(t), f_{i}(t), \epsilon_{i}, \delta_{i}, \{p_{i}(t)\})\)</span></p>
+<div class="math notranslate">
+\[\begin{split}&amp; v_{i}(t) \in R &amp;: Stock\ Value \\
+&amp; f_i(t) \in \{-1, 0, 1\} &amp;: Trand\ Flag \\
+&amp; \epsilon_i \in (0, 1) &amp;: Confidence Interval \\
+&amp; \delta_i \in A &amp;: Degree\ of\ Reliability \\
+&amp; p_i(t)=(j, k) \in N\times N &amp;: Pair\ Trade\ Flag \\\end{split}\]</div>
+<p>Pair Trade Flag is defined following conditions.</p>
+<div class="math notranslate">
+\[\begin{split}&amp; p_i(t) = (j, k) &amp; \Leftrightarrow &amp; (f_i(t) \neq f_j(t) \land f_i(t) \neq 0 \land f_j(t) \land 0) \\
+&amp; &amp; &amp; \land (v_i(t+k) \in (v_j(t+k)-\epsilon_j, v_j(t+k)+\epsilon_j)) \\
+&amp; &amp; &amp; \land (v_j(t+k) \in (v_i(t+k)-\epsilon_i, v_i(t+k)+\epsilon_i)) \\
+&amp; &amp; \Leftrightarrow &amp; (f_i(t) \neq f_j(t) \land f_i(t) \neq 0 \land f_j(t) \land 0) \\
+&amp; &amp; &amp; \land (v_j(t+k) =v_i(t+k)) \\\end{split}\]</div>
+</div>
+<div class="section" id="id6">
+<h2>ペアトレードの抽出<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Cluster</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ペアトレードによる売買最適化システムに対する理論</a><ul>
+<li><a class="reference internal" href="#id2">株価予測について</a></li>
+<li><a class="reference internal" href="#id3">銘柄同士の距離</a></li>
+<li><a class="reference internal" href="#id4">トレンド</a></li>
+<li><a class="reference internal" href="#id5">銘柄情報</a></li>
+<li><a class="reference internal" href="#id6">ペアトレードの抽出</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">Welcome to mystudy-docs's documentation!</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="program.html"
+                        title="次の章へ">プログラム</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/theoretical.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="program.html" title="プログラム"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to mystudy-docs&#39;s documentation!"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">mystudy-docs  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, mahotox101500@gmail.com.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.0 で生成しました。
+    </div>
+  </body>
+</html>
