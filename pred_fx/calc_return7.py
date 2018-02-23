@@ -19,7 +19,7 @@ class ReinforcementLearning:
         self._close = train_data
         self._pred = test_data
         self._p = {date: 0 for date in (list(self._close.keys())+list(self._pred.keys()))}
-        self._alp = 0.2         # Learning rate
+        self._alp = 0.1         # Learning rate
         self._gam = 0.8         # Discount rate
         self._span = 20         # Spans for standerd devision
         self._div = 0.5         # State divide 状態の分割単位：標準偏差の0.5倍分割
